@@ -212,4 +212,105 @@ class quizaccess_failgrade extends quiz_access_rule_base {
         }
 
         // Grade Mode (mode 1) or fallback
-        $item
+        $item = \grade_item::fetch([
+            'courseid' => $this->quizobj->get_courseid(),
+            'itemtype' => 'mod',
+            'itemmodule' => 'quiz',
+            'iteminstance' => $this->quizobj->get_quizid(),
+            'outcomeid' => null,
+        ]);
+
+        if ($item) {
+            $grades = \grade_grade::fetch_users_grades($item, [$userid], false);
+            $grade = $grades[$userid];
+
+            if (!empty($grade)) {
+                return $this->isfinishedcache[$userid] = $grade->is_passed($item);
+            }
+        }
+
+        return $this->isfinishedcache[$userid] = false;
+    }
+
+    /**
+     * Add any fields that this rule requires to the quiz settings form. This
+     * method is called from {@link mod_quiz_mod_form::definition()}, while the
+     * security seciton is being built.
+     * @param \mod_quiz\form\setup $quizform the quiz settings form that is being built.
+     * @param \MoodleQuickForm $mform the wrapped MoodleQuickForm.
+     */
+    public static function add_settings_form_fields(
+        /* \mod_quiz\form\setup */ $quizform,
+        \MoodleQuickForm $mform
+    ) {
+
+        $options = [
+            0 => get_string('failgrademode_disabled', 'quizaccess_failgrade'),
+            1 => get_string('failgrademode_grade', 'quizaccess_failgrade'),
+            2 => get_string('failgrademode_competency', 'quizaccess_failgrade'),
+        ];
+
+        $mform->addElement(
+            'select',
+            'failgradeenabled',
+            get_string('failgradeenabled', 'quizaccess_failgrade'),
+            $options
+        );
+        $mform->addHelpButton('failgradeenabled', 'failgradeenabled', 'quizaccess_failgrade');
+    }
+
+    /**
+     * Save any submitted settings when the quiz settings form is submitted. This
+     * is called from {@link quiz_after_add_or_update()} in lib.php.
+     * @param object $quiz the data from the quiz form, including $quiz->id
+     * which is the id of the quiz being saved.
+     */
+    public static function save_settings($quiz) {
+        global $DB;
+
+        if (empty($quiz->failgradeenabled) || $quiz->failgradeenabled == 0) {
+            $DB->delete_records('quizaccess_failgrade', ['quizid' => $quiz->id]);
+        } else {
+            if (!$DB->record_exists('quizaccess_failgrade', ['quizid' => $quiz->id])) {
+                $record = new \stdClass();
+                $record->quizid = $quiz->id;
+                $record->failgradeenabled = $quiz->failgradeenabled;
+                $DB->insert_record('quizaccess_failgrade', $record);
+            } else {
+                $record = $DB->get_record('quizaccess_failgrade', ['quizid' => $quiz->id]);
+                $record->failgradeenabled = $quiz->failgradeenabled;
+                $DB->update_record('quizaccess_failgrade', $record);
+            }
+        }
+    }
+
+    /**
+     * Delete any rule-specific settings when the quiz is deleted. This is called
+     * from {@link quiz_delete_instance()} in lib.php.
+     * @param object $quiz the data from the database, including $quiz->id
+     * which is the id of the quiz being deleted.
+     * @since Moodle 2.7.1, 2.6.4, 2.5.7
+     */
+    public static function delete_settings($quiz) {
+        global $DB;
+
+        $DB->delete_records('quizaccess_failgrade', ['quizid' => $quiz->id]);
+    }
+
+    /**
+     * Return the bits of SQL needed to load all the settings from all the access
+     * plugins in one DB query. The easiest way to understand what you need to do
+     * here is probalby to read the code of {@link quiz_access_manager::load_settings()}.
+     *
+     * @param int $quizid the id of the quiz we are loading settings for. This
+     * can also be accessed as quiz.id in the SQL. (quiz is a table alisas for {quiz}.)
+     * @return array with three elements:
+     */
+    public static function get_settings_sql($quizid) {
+        return [
+            'failgradeenabled',
+            'LEFT JOIN {quizaccess_failgrade} failgrade ON failgrade.quizid = quiz.id',
+            [],
+        ];
+    }
+}
