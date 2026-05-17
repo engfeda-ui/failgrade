@@ -1,3 +1,4 @@
+# GitHub Actions workflow for Moodle plugin CI (Modern Versions Focus).
 name: Moodle Plugin CI
 
 on: [push, pull_request]
@@ -6,47 +7,66 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        # التركيز على مودل 4.5 وإصدارات PHP الحديثة المدعومة من قبل مودل نفسه
+        moodle-branch: ['MOODLE_405_STABLE']
+        php: ['8.1', '8.2', '8.3']
+
     services:
       postgres:
         image: postgres:13
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-    strategy:
-      matrix:
-        moodle-branch: ['MOODLE_400_STABLE', 'MOODLE_401_STABLE', 'MOODLE_402_STABLE']
-        php: ['8.0', '8.1']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
+      # سحب الكود وضبط المسار الصحيح للبلجن الجديد في مودل
       - uses: actions/checkout@v3
+        with:
+          path: mod/quiz/accessrule/failgrade
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           extensions: pgsql, mbstring, gd, curl, xml, zip, intl, sodium
+          # إعدادات الـ PHP لضمان عدم حدوث كراش أثناء التثبيت لمودل 4.5
+          ini-values: max_execution_time=600, memory_limit=512M, max_input_vars=5000
+          tools: composer:v2
 
+      # تهيئة الـ System Locales لضمان نجاح اختبارات PHPUnit
+      - name: Setup System Locales
+        run: |
+          sudo locale-gen en_AU.UTF-8
+          sudo update-locale
+
+      # تثبيت الإصدار الرابع من الأداة الرسمية المتوافقة تماماً مع مودل 4.5
       - name: Setup Moodle Plugin CI
         run: |
-          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
-          echo $(pwd)/ci/bin >> $GITHUB_PATH
-          echo $(pwd)/ci/vendor/bin >> $GITHUB_PATH
+          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
+          echo "$(cd ci/bin; pwd)" >> $GITHUB_PATH
+          echo "$(cd ci/vendor/bin; pwd)" >> $GITHUB_PATH
 
+      # تثبيت المودل وربطه بقاعدة البيانات مع البلجن الجديد باسمه ومساره الصحيح
       - name: Install Moodle
-        run: moodle-plugin-ci install --db-host=127.0.0.1 --db-user=postgres --db-pass=password
+        run: moodle-plugin-ci install --plugin mod/quiz/accessrule/failgrade --db-host=127.0.0.1 --db-user=postgres --db-name=moodle_ci_db --db-pass="" --db-type=pgsql
         env:
-          DB: pgsql
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
 
       - name: PHP Lint
-        run: moodle-plugin-ci phplint
+        run: moodle-plugin-ci phplint mod/quiz/accessrule/failgrade
 
       - name: PHP CodeSniffer
-        run: moodle-plugin-ci codechecker
+        run: moodle-plugin-ci codechecker mod/quiz/accessrule/failgrade
 
       - name: Moodle PHPUnit
         run: moodle-plugin-ci phpunit
