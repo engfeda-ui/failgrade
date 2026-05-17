@@ -17,12 +17,10 @@
 /**
  * quizaccess_failgrade plugin upgrade steps.
  *
- * @package   quizaccess_failgrade
- * @copyright 2026 quizaccess_failgrade contributors
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    quizaccess_failgrade
+ * @copyright  2026 quizaccess_failgrade contributors
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Upgrade the plugin from an old version.
@@ -38,11 +36,11 @@ function xmldb_quizaccess_failgrade_upgrade($oldversion) {
     if ($oldversion < 2026051500) {
         // The failgradeenabled column previously stored only 0 or 1 (Boolean).
         // As of v2.0.0 it stores 0, 1, or 2 to support three modes:
-        //   0 = disabled
-        //   1 = grade-based mode  (legacy behaviour)
-        //   2 = competency-based mode (new)
+        // 0 = disabled
+        // 1 = grade-based mode  (legacy behaviour)
+        // 2 = competency-based mode (new)
         //
-        // The existing INT(2) column already fits values 0–2 without a schema change,
+        // The existing INT(2) column already fits values 0-2 without a schema change,
         // so no DDL alteration is needed. We just bump the savepoint.
 
         upgrade_plugin_savepoint(true, 2026051500, 'quizaccess', 'failgrade');
