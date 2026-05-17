@@ -45,7 +45,7 @@ if (class_exists('\mod_quiz\local\access_rule_base')) {
  * @copyright  2020 Alexandre Paes Rigão <rigao.com.br>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class quizaccess_failgrade_rule_testcase extends advanced_testcase {
+class rule_test extends advanced_testcase {
     public function test_setting() {
         global $CFG;
 
@@ -678,7 +678,7 @@ class quizaccess_failgrade_rule_testcase extends advanced_testcase {
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
-        // mode=0 means make() must return null - the rule is not active.
+        // Mode=0 means make() must return null - the rule is not active.
         $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertNull($rule);
     }
