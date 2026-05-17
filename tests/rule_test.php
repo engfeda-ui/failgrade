@@ -17,11 +17,9 @@
 /**
  * Unit tests for the quizaccess_failgrade plugin.
  *
- * @package quizaccess
- * @subpackage failgrade
- * @category phpunit
- * @copyright 2020 Alexandre Paes Rigão <rigao.com.br>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    quizaccess_failgrade
+ * @copyright  2020 Alexandre Paes Rigão <rigao.com.br>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace quizaccess_failgrade;
@@ -33,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-require_once ($CFG->dirroot . '/mod/quiz/accessrule/failgrade/rule.php');
+require_once($CFG->dirroot . '/mod/quiz/accessrule/failgrade/rule.php');
 
 // This work-around is required until Moodle 4.2 is the lowest version we support.
 if (class_exists('\mod_quiz\local\access_rule_base')) {
@@ -44,13 +42,11 @@ if (class_exists('\mod_quiz\local\access_rule_base')) {
 /**
  * Unit tests for the quizaccess_failgrade plugin.
  *
- * @copyright 2020 Alexandre Paes Rigão <rigao.com.br>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2020 Alexandre Paes Rigão <rigao.com.br>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class quizaccess_failgrade_testcase extends advanced_testcase
-{
-    public function test_setting()
-    {
+class quizaccess_failgrade_rule_testcase extends advanced_testcase {
+    public function test_setting() {
         global $CFG;
 
         $this->resetAfterTest();
@@ -109,8 +105,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
         $this->assertEmpty($rule->prevent_new_attempt(0, null));
     }
 
-    public function test_grade_highest()
-    {
+    public function test_grade_highest() {
         global $CFG;
 
         $this->resetAfterTest();
@@ -153,7 +148,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
             'itemtype' => 'mod',
             'itemmodule' => 'quiz',
             'iteminstance' => $quiz->id,
-            'outcomeid' => null
+            'outcomeid' => null,
         ]);
         $item->gradepass = 6;
         $item->update();
@@ -165,7 +160,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
         $numq = $questiongenerator->create_question('numerical', null, ['category' => $cat->id]);
         quiz_add_quiz_question($numq->id, $quiz);
 
-        // Fail
+        // Fail.
         $quba = \question_engine::make_questions_usage_by_activity('mod_quiz', $quizobj->get_context());
         $quba->set_preferred_behaviour($quizobj->get_quiz()->preferredbehaviour);
         $timenow = time();
@@ -179,7 +174,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
         $this->assertFalse($rule->is_finished(1, $attempt));
         $this->assertEmpty($rule->prevent_new_attempt(1, $attempt));
 
-        // Pass
+        // Pass.
         $quba = \question_engine::make_questions_usage_by_activity('mod_quiz', $quizobj->get_context());
         $quba->set_preferred_behaviour($quizobj->get_quiz()->preferredbehaviour);
         $timenow = time();
@@ -193,7 +188,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
         $this->assertTrue($rule->is_finished(2, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(2, $attempt));
 
-        // Fail
+        // Fail.
         $quba = \question_engine::make_questions_usage_by_activity('mod_quiz', $quizobj->get_context());
         $quba->set_preferred_behaviour($quizobj->get_quiz()->preferredbehaviour);
         $timenow = time();
@@ -208,8 +203,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
         $this->assertNotEmpty($rule->prevent_new_attempt(3, $attempt));
     }
 
-    public function test_grade_firstattempt()
-    {
+    public function test_grade_firstattempt() {
         global $CFG;
 
         $this->resetAfterTest();
@@ -253,7 +247,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
             'itemtype' => 'mod',
             'itemmodule' => 'quiz',
             'iteminstance' => $quiz->id,
-            'outcomeid' => null
+            'outcomeid' => null,
         ]);
         $item->gradepass = 6;
         $item->update();
@@ -311,7 +305,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
             'itemtype' => 'mod',
             'itemmodule' => 'quiz',
             'iteminstance' => $quiz->id,
-            'outcomeid' => null
+            'outcomeid' => null,
         ]);
         $item->gradepass = 6;
         $item->update();
@@ -337,8 +331,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
         $this->assertNotEmpty($rule->prevent_new_attempt(1, $attempt));
     }
 
-    public function test_grade_lastattempt()
-    {
+    public function test_grade_lastattempt() {
         global $CFG;
 
         $this->resetAfterTest();
@@ -383,7 +376,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
             'itemtype' => 'mod',
             'itemmodule' => 'quiz',
             'iteminstance' => $quiz->id,
-            'outcomeid' => null
+            'outcomeid' => null,
         ]);
         $item->gradepass = 6;
         $item->update();
@@ -422,8 +415,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
         $this->assertNotEmpty($rule->prevent_new_attempt(2, $attempt));
     }
 
-    public function test_grade_average()
-    {
+    public function test_grade_average() {
         global $CFG;
 
         $this->resetAfterTest();
@@ -466,7 +458,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
             'itemtype' => 'mod',
             'itemmodule' => 'quiz',
             'iteminstance' => $quiz->id,
-            'outcomeid' => null
+            'outcomeid' => null,
         ]);
         $item->gradepass = 6;
         $item->update();
@@ -506,10 +498,9 @@ class quizaccess_failgrade_testcase extends advanced_testcase
     }
 
     /**
-     * Test mode=2 (competency-based): student has NOT achieved all competencies → is_finished returns false.
+     * Test mode=2 (competency-based): student has NOT achieved all competencies -> is_finished returns false.
      */
-    public function test_competency_mode_not_all_achieved()
-    {
+    public function test_competency_mode_not_all_achieved() {
         global $CFG;
 
         $this->resetAfterTest();
@@ -537,13 +528,13 @@ class quizaccess_failgrade_testcase extends advanced_testcase
 
         $quizgenerator = $generator->get_plugin_generator('mod_quiz');
         $quiz = $quizgenerator->create_instance([
-            'course'          => $course->id,
+            'course'           => $course->id,
             'questionsperpage' => 0,
-            'grade'           => 10.0,
-            'sumgrades'       => 2,
-            'attempts'        => 0,
-            'name'            => 'Competency Quiz',
-            'grademethod'     => QUIZ_GRADEHIGHEST,
+            'grade'            => 10.0,
+            'sumgrades'        => 2,
+            'attempts'         => 0,
+            'name'             => 'Competency Quiz',
+            'grademethod'      => QUIZ_GRADEHIGHEST,
             'failgradeenabled' => 2,
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
@@ -556,7 +547,6 @@ class quizaccess_failgrade_testcase extends advanced_testcase
         // Add course-level competency entries for the user but mark NONE as proficient.
         \core_competency\api::add_competency_to_course($course->id, $comp1->get('id'));
         \core_competency\api::add_competency_to_course($course->id, $comp2->get('id'));
-        // (User competency records are created lazily by the API on first access — no proficiency set.)
 
         $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertInstanceOf('quizaccess_failgrade', $rule);
@@ -579,16 +569,15 @@ class quizaccess_failgrade_testcase extends advanced_testcase
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
-        // No competency is marked proficient → quiz must remain open (is_finished = false).
+        // No competency is marked proficient -> quiz must remain open (is_finished = false).
         $this->assertFalse($rule->is_finished(1, $attempt));
         $this->assertFalse($rule->prevent_new_attempt(1, $attempt));
     }
 
     /**
-     * Test mode=2 (competency-based): student HAS achieved ALL competencies → is_finished returns true.
+     * Test mode=2 (competency-based): student HAS achieved ALL competencies -> is_finished returns true.
      */
-    public function test_competency_mode_all_achieved()
-    {
+    public function test_competency_mode_all_achieved() {
         global $CFG;
 
         $this->resetAfterTest();
@@ -663,7 +652,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
-        // Both competencies achieved → quiz must be finished (is_finished = true).
+        // Both competencies achieved -> quiz must be finished (is_finished = true).
         $this->assertTrue($rule->is_finished(1, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(1, $attempt));
     }
@@ -671,8 +660,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
     /**
      * Test mode=0 (disabled): the rule must not be instantiated at all.
      */
-    public function test_mode_disabled()
-    {
+    public function test_mode_disabled() {
         $this->resetAfterTest();
 
         $generator     = $this->getDataGenerator();
@@ -690,7 +678,7 @@ class quizaccess_failgrade_testcase extends advanced_testcase
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
-        // mode=0 means make() must return null — the rule is not active.
+        // mode=0 means make() must return null - the rule is not active.
         $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertNull($rule);
     }
