@@ -1,0 +1,56 @@
+name: Moodle Plugin CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: moodle
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    strategy:
+      matrix:
+        moodle-branch: ['MOODLE_400_STABLE', 'MOODLE_401_STABLE', 'MOODLE_402_STABLE']
+        php: ['8.0', '8.1']
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pgsql, mbstring, gd, curl, xml, zip, intl, sodium
+
+      - name: Setup Moodle Plugin CI
+        run: |
+          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
+          echo $(pwd)/ci/bin >> $GITHUB_PATH
+          echo $(pwd)/ci/vendor/bin >> $GITHUB_PATH
+
+      - name: Install Moodle
+        run: moodle-plugin-ci install --db-host=127.0.0.1 --db-user=postgres --db-pass=password
+        env:
+          DB: pgsql
+          MOODLE_BRANCH: ${{ matrix.moodle-branch }}
+
+      - name: PHP Lint
+        run: moodle-plugin-ci phplint
+
+      - name: PHP CodeSniffer
+        run: moodle-plugin-ci codechecker
+
+      - name: Moodle PHPUnit
+        run: moodle-plugin-ci phpunit
+
+      - name: Moodle Behat
+        run: moodle-plugin-ci behat
