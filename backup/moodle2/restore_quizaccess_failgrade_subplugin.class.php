@@ -17,9 +17,9 @@
 /**
  * Restore code for the quizaccess_failgrade plugin.
  *
- * @package   quizaccess_failgrade
- * @copyright 2023 Leon Stringer
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    quizaccess_failgrade
+ * @copyright  2023 Leon Stringer
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -34,14 +34,18 @@ require_once($CFG->dirroot . '/mod/quiz/backup/moodle2/restore_mod_quiz_access_s
  * will be in the XML, and this needs to be written to the DB. Otherwise, nothing
  * needs to be written to the DB.
  *
- * @copyright 2023 Leon Stringer
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2023 Leon Stringer
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_quizaccess_failgrade_subplugin extends restore_mod_quiz_access_subplugin {
-
+    /**
+     * Define the quiz subplugin structure.
+     *
+     * @return restore_path_element[] Array of restore path elements.
+     */
     protected function define_quiz_subplugin_structure() {
 
-        $paths = array();
+        $paths = [];
 
         $elename = $this->get_namefor('');
         $elepath = $this->get_pathfor('/quizaccess_failgrade');
@@ -52,6 +56,7 @@ class restore_quizaccess_failgrade_subplugin extends restore_mod_quiz_access_sub
 
     /**
      * Processes the quizaccess_failgrade element, if it is in the file.
+     *
      * @param array $data the data read from the XML file.
      */
     public function process_quizaccess_failgrade($data) {
