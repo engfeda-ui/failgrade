@@ -18,7 +18,8 @@
  * Unit tests for the quizaccess_failgrade plugin.
  *
  * @package    quizaccess_failgrade
- * @copyright  2020 Alexandre Paes Rigão <rigao.com.br>
+  * @copyright  2026 Mahmoud Salem
+ * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -42,7 +43,8 @@ if (class_exists('\mod_quiz\local\access_rule_base')) {
 /**
  * Unit tests for the quizaccess_failgrade plugin.
  *
- * @copyright  2020 Alexandre Paes Rigão <rigao.com.br>
+  * @copyright  2026 Mahmoud Salem
+ * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rule_test extends advanced_testcase {

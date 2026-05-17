@@ -22,7 +22,7 @@ use core\event\base;
  * Event fired when a student is blocked from attempting a quiz because they already passed.
  *
  * @package    quizaccess_failgrade
- * @copyright  2026 Mahmoud
+  * @copyright  2026 Mahmoud Salem
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attempt_blocked_by_failgrade extends base {
