@@ -134,10 +134,11 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                         $competencyid = $cmcomp->competencyid;
                     }
 
+                    // CORRECTED PARAMETER ORDER: courseid, userid, competencyid
                     $usercomp = \core_competency\api::get_user_competency_in_course(
+                        $courseid,
                         $userid,
-                        $competencyid,
-                        $courseid
+                        $competencyid
                     );
 
                     // Safe extraction for proficiency.
@@ -240,7 +241,8 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                         $competencyid = $cmcomp->competencyid;
                     }
 
-                    $usercomp = \core_competency\api::get_user_competency_in_course($userid, $competencyid, $courseid);
+                    // CORRECTED PARAMETER ORDER: courseid, userid, competencyid
+                    $usercomp = \core_competency\api::get_user_competency_in_course($courseid, $userid, $competencyid);
 
                     // Safe extraction for proficiency.
                     $isproficient = false;
