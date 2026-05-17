@@ -540,14 +540,14 @@ class rule_test extends advanced_testcase {
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
-        // Link both competencies to the quiz course module.
+        // CORRECT ORDER: 1. Add course-level competency entries for the user first.
+        \core_competency\api::add_competency_to_course($course->id, $comp1->get('id'));
+        \core_competency\api::add_competency_to_course($course->id, $comp2->get('id'));
+
+        // CORRECT ORDER: 2. Then link both competencies to the quiz course module.
         $cm = get_coursemodule_from_instance('quiz', $quiz->id, $course->id);
         \core_competency\api::add_competency_to_course_module($cm, $comp1->get('id'));
         \core_competency\api::add_competency_to_course_module($cm, $comp2->get('id'));
-
-        // Add course-level competency entries for the user but mark NONE as proficient.
-        \core_competency\api::add_competency_to_course($course->id, $comp1->get('id'));
-        \core_competency\api::add_competency_to_course($course->id, $comp2->get('id'));
 
         $this->setUser($user); // Now switch back to user
 
@@ -620,14 +620,14 @@ class rule_test extends advanced_testcase {
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
-        // Link both competencies to the course module.
+        // CORRECT ORDER: 1. Add course-level competencies first.
+        \core_competency\api::add_competency_to_course($course->id, $comp1->get('id'));
+        \core_competency\api::add_competency_to_course($course->id, $comp2->get('id'));
+
+        // CORRECT ORDER: 2. Then link both competencies to the course module.
         $cm = get_coursemodule_from_instance('quiz', $quiz->id, $course->id);
         \core_competency\api::add_competency_to_course_module($cm, $comp1->get('id'));
         \core_competency\api::add_competency_to_course_module($cm, $comp2->get('id'));
-
-        // Add course-level competencies.
-        \core_competency\api::add_competency_to_course($course->id, $comp1->get('id'));
-        \core_competency\api::add_competency_to_course($course->id, $comp2->get('id'));
 
         // Mark BOTH competencies as proficient for this user in this course.
         \core_competency\api::grade_competency_in_course($course->id, $user->id, $comp1->get('id'), 3, true);
@@ -663,7 +663,7 @@ class rule_test extends advanced_testcase {
     }
 
     /**
-     * Test mode=0 (disabled): the rule must not be instantiated at all.
+     * Test Mode=0 (disabled): the rule must not be instantiated at all.
      */
     public function test_mode_disabled() {
         $this->resetAfterTest();
