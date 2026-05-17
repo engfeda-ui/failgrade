@@ -116,11 +116,11 @@ class quizaccess_failgrade extends quiz_access_rule_base {
             $courseid = $this->quizobj->get_courseid();
             $userid = $USER->id;
 
-            $cm_competencies = \core_competency\api::list_course_module_competencies($cmid);
-            if (count($cm_competencies) > 0) {
-                $missing_competencies = [];
-                foreach ($cm_competencies as $cm_comp) {
-                    $competencyid = $cm_comp->get('competencyid');
+            $cmcompetencies = \core_competency\api::list_course_module_competencies($cmid);
+            if (count($cmcompetencies) > 0) {
+                $missingcompetencies = [];
+                foreach ($cmcompetencies as $cmcomp) {
+                    $competencyid = $cmcomp->get('competencyid');
                     $usercomp = \core_competency\api::get_user_competency_in_course(
                         $userid,
                         $competencyid,
@@ -128,14 +128,14 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                     );
                     if (!$usercomp || !$usercomp->get('proficiency')) {
                         $competency = new \core_competency\competency($competencyid);
-                        $missing_competencies[] = $competency->get('shortname');
+                        $missingcompetencies[] = $competency->get('shortname');
                     }
                 }
 
-                if (!empty($missing_competencies)) {
+                if (!empty($missingcompetencies)) {
                     $separator = get_string('listseparator', 'quizaccess_failgrade');
-                    $names_string = implode($separator, $missing_competencies);
-                    $message = get_string('missingcompetencies', 'quizaccess_failgrade', $names_string);
+                    $namesstring = implode($separator, $missingcompetencies);
+                    $message = get_string('missingcompetencies', 'quizaccess_failgrade', $namesstring);
                     return $this->descriptioncache = [
                         '<div class="alert alert-warning" role="alert">' .
                         '<i class="fa fa-exclamation-triangle"></i> ' . $message . '</div>',
@@ -146,10 +146,10 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                 // Doing this check last saves DB queries for students who are missing competencies.
                 $attempts = quiz_get_user_attempts($this->quizobj->get_quizid(), $userid, 'finished', true);
                 if (!empty($attempts)) {
-                    $success_message = get_string('allcompetenciesmet', 'quizaccess_failgrade');
+                    $successmessage = get_string('allcompetenciesmet', 'quizaccess_failgrade');
                     return $this->descriptioncache = [
                         '<div class="alert alert-success" role="alert">' .
-                        '<i class="fa fa-check-circle"></i> ' . $success_message . '</div>',
+                        '<i class="fa fa-check-circle"></i> ' . $successmessage . '</div>',
                     ];
                 }
 
@@ -190,28 +190,28 @@ class quizaccess_failgrade extends quiz_access_rule_base {
         if ($mode == 2 && \core_competency\api::is_enabled()) {
             $cmid = $this->quizobj->get_cmid();
             $courseid = $this->quizobj->get_courseid();
-            $cm_competencies = \core_competency\api::list_course_module_competencies($cmid);
-            $total_competencies = count($cm_competencies);
+            $cmcompetencies = \core_competency\api::list_course_module_competencies($cmid);
+            $totalcompetencies = count($cmcompetencies);
 
-            if ($total_competencies > 0) {
-                $achieved_competencies = 0;
-                foreach ($cm_competencies as $cm_comp) {
-                    $competencyid = $cm_comp->get('competencyid');
+            if ($totalcompetencies > 0) {
+                $achievedcompetencies = 0;
+                foreach ($cmcompetencies as $cmcomp) {
+                    $competencyid = $cmcomp->get('competencyid');
                     $usercomp = \core_competency\api::get_user_competency_in_course($userid, $competencyid, $courseid);
 
                     if ($usercomp && $usercomp->get('proficiency')) {
-                        $achieved_competencies++;
+                        $achievedcompetencies++;
                     }
                 }
 
-                if ($achieved_competencies == $total_competencies) {
+                if ($achievedcompetencies == $totalcompetencies) {
                     return $this->isfinishedcache[$userid] = true;
                 }
                 return $this->isfinishedcache[$userid] = false;
             }
         }
 
-        // Grade Mode (mode 1) or fallback
+        // Grade Mode (mode 1) or fallback.
         $item = \grade_item::fetch([
             'courseid' => $this->quizobj->get_courseid(),
             'itemtype' => 'mod',
@@ -240,7 +240,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
      * @param \MoodleQuickForm $mform the wrapped MoodleQuickForm.
      */
     public static function add_settings_form_fields(
-        /* \mod_quiz\form\setup */ $quizform,
+        $quizform,
         \MoodleQuickForm $mform
     ) {
 
