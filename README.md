@@ -17,7 +17,8 @@ Please refer to the official documentation: [Installing Plugins](https://docs.mo
 
 ## Requirements
 
-- Moodle 3.9 (2020060900)
+- Moodle 4.0 minimum (2022041900)
+- Supports Moodle 4.0 up to 5.0+
 
 # Status / Roadmap
 
