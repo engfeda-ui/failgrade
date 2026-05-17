@@ -44,7 +44,6 @@ class backup_quizaccess_failgrade_subplugin extends backup_mod_quiz_access_subpl
      * @return backup_nested_element
      */
     protected function define_quiz_subplugin_structure() {
-
         // Create XML elements.
         $subplugin = $this->get_subplugin_element();
         $subpluginwrapper = new backup_nested_element($this->get_recommended_name());

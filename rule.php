@@ -126,7 +126,13 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                         if (isset($cmcomp['competencyid'])) {
                             $competencyid = $cmcomp['competencyid'];
                         } else if (isset($cmcomp['competency'])) {
-                            $competencyid = $cmcomp['competency']->get('id');
+                            if (is_array($cmcomp['competency'])) {
+                                $competencyid = $cmcomp['competency']['id'] ?? null;
+                            } else if (is_object($cmcomp['competency']) && method_exists($cmcomp['competency'], 'get')) {
+                                $competencyid = $cmcomp['competency']->get('id');
+                            } else if (is_object($cmcomp['competency'])) {
+                                $competencyid = $cmcomp['competency']->id ?? null;
+                            }
                         }
                     } else if (method_exists($cmcomp, 'get')) {
                         $competencyid = $cmcomp->get('competencyid');
@@ -134,7 +140,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                         $competencyid = $cmcomp->competencyid;
                     }
 
-                    // CORRECTED PARAMETER ORDER: courseid, userid, competencyid
+                    // Corrected parameter order: courseid, userid, competencyid.
                     $usercomp = \core_competency\api::get_user_competency_in_course(
                         $courseid,
                         $userid,
@@ -148,7 +154,14 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                             if (isset($usercomp['proficiency'])) {
                                 $isproficient = $usercomp['proficiency'];
                             } else if (isset($usercomp['usercompetencycourse'])) {
-                                $isproficient = $usercomp['usercompetencycourse']->get('proficiency');
+                                $ucc = $usercomp['usercompetencycourse'];
+                                if (is_array($ucc)) {
+                                    $isproficient = $ucc['proficiency'] ?? false;
+                                } else if (is_object($ucc) && method_exists($ucc, 'get')) {
+                                    $isproficient = $ucc->get('proficiency');
+                                } else if (is_object($ucc)) {
+                                    $isproficient = $ucc->proficiency ?? false;
+                                }
                             }
                         } else if (method_exists($usercomp, 'get')) {
                             $isproficient = $usercomp->get('proficiency');
@@ -233,7 +246,13 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                         if (isset($cmcomp['competencyid'])) {
                             $competencyid = $cmcomp['competencyid'];
                         } else if (isset($cmcomp['competency'])) {
-                            $competencyid = $cmcomp['competency']->get('id');
+                            if (is_array($cmcomp['competency'])) {
+                                $competencyid = $cmcomp['competency']['id'] ?? null;
+                            } else if (is_object($cmcomp['competency']) && method_exists($cmcomp['competency'], 'get')) {
+                                $competencyid = $cmcomp['competency']->get('id');
+                            } else if (is_object($cmcomp['competency'])) {
+                                $competencyid = $cmcomp['competency']->id ?? null;
+                            }
                         }
                     } else if (method_exists($cmcomp, 'get')) {
                         $competencyid = $cmcomp->get('competencyid');
@@ -241,7 +260,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                         $competencyid = $cmcomp->competencyid;
                     }
 
-                    // CORRECTED PARAMETER ORDER: courseid, userid, competencyid
+                    // Corrected parameter order: courseid, userid, competencyid.
                     $usercomp = \core_competency\api::get_user_competency_in_course($courseid, $userid, $competencyid);
 
                     // Safe extraction for proficiency.
@@ -251,7 +270,14 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                             if (isset($usercomp['proficiency'])) {
                                 $isproficient = $usercomp['proficiency'];
                             } else if (isset($usercomp['usercompetencycourse'])) {
-                                $isproficient = $usercomp['usercompetencycourse']->get('proficiency');
+                                $ucc = $usercomp['usercompetencycourse'];
+                                if (is_array($ucc)) {
+                                    $isproficient = $ucc['proficiency'] ?? false;
+                                } else if (is_object($ucc) && method_exists($ucc, 'get')) {
+                                    $isproficient = $ucc->get('proficiency');
+                                } else if (is_object($ucc)) {
+                                    $isproficient = $ucc->proficiency ?? false;
+                                }
                             }
                         } else if (method_exists($usercomp, 'get')) {
                             $isproficient = $usercomp->get('proficiency');
@@ -304,7 +330,6 @@ class quizaccess_failgrade extends quiz_access_rule_base {
         $quizform,
         \MoodleQuickForm $mform
     ) {
-
         $options = [
             0 => get_string('failgrademode_disabled', 'quizaccess_failgrade'),
             1 => get_string('failgrademode_grade', 'quizaccess_failgrade'),

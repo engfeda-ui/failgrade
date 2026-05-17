@@ -10,7 +10,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # التركيز على مودل 4.5 وإصدارات PHP الحديثة المدعومة من قبل مودل نفسه
         moodle-branch: ['MOODLE_405_STABLE']
         php: ['8.1', '8.2', '8.3']
 
@@ -29,7 +28,6 @@ jobs:
           --health-retries 5
 
     steps:
-      # سحب الكود وضبط المسار الصحيح للبلجن الجديد في مودل
       - uses: actions/checkout@v3
         with:
           path: mod/quiz/accessrule/failgrade
@@ -39,24 +37,20 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: pgsql, mbstring, gd, curl, xml, zip, intl, sodium
-          # إعدادات الـ PHP لضمان عدم حدوث كراش أثناء التثبيت لمودل 4.5
           ini-values: max_execution_time=600, memory_limit=512M, max_input_vars=5000
           tools: composer:v2
 
-      # تهيئة الـ System Locales لضمان نجاح اختبارات PHPUnit
       - name: Setup System Locales
         run: |
           sudo locale-gen en_AU.UTF-8
           sudo update-locale
 
-      # تثبيت الإصدار الرابع من الأداة الرسمية المتوافقة تماماً مع مودل 4.5
       - name: Setup Moodle Plugin CI
         run: |
           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
           echo "$(cd ci/bin; pwd)" >> $GITHUB_PATH
           echo "$(cd ci/vendor/bin; pwd)" >> $GITHUB_PATH
 
-      # تثبيت المودل وربطه بقاعدة البيانات مع البلجن الجديد باسمه ومساره الصحيح
       - name: Install Moodle
         run: moodle-plugin-ci install --plugin mod/quiz/accessrule/failgrade --db-host=127.0.0.1 --db-user=postgres --db-name=moodle_ci_db --db-pass="" --db-type=pgsql
         env:

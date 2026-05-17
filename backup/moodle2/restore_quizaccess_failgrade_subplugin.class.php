@@ -44,7 +44,6 @@ class restore_quizaccess_failgrade_subplugin extends restore_mod_quiz_access_sub
      * @return restore_path_element[] Array of restore path elements.
      */
     protected function define_quiz_subplugin_structure() {
-
         $paths = [];
 
         $elename = $this->get_namefor('');

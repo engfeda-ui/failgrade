@@ -34,15 +34,10 @@ function xmldb_quizaccess_failgrade_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2026051500) {
-        // The failgradeenabled column previously stored only 0 or 1 (Boolean).
-        // As of v2.0.0 it stores 0, 1, or 2 to support three modes:
-        // 0 = disabled
-        // 1 = grade-based mode  (legacy behaviour)
-        // 2 = competency-based mode (new)
-        //
-        // The existing INT(2) column already fits values 0-2 without a schema change,
-        // so no DDL alteration is needed. We just bump the savepoint.
-
+        // The failgradeenabled column previously stored only 0 or 1 (boolean).
+        // As of v2.0.0 it stores 0, 1, or 2 to support three modes: 0 (disabled), 1 (grade-based), and 2 (competency-based).
+        // The existing INT(2) column already fits values 0-2 without a schema change, so no DDL alteration is needed.
+        // We just bump the savepoint.
         upgrade_plugin_savepoint(true, 2026051500, 'quizaccess', 'failgrade');
     }
 

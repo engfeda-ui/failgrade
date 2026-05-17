@@ -519,7 +519,7 @@ class rule_test extends advanced_testcase {
         $user = $generator->create_user();
         $generator->enrol_user($user->id, $course->id);
 
-        $this->setAdminUser(); // Set admin to manage competencies
+        $this->setAdminUser(); // Set admin to manage competencies.
 
         // Create a competency framework and two competencies.
         $lpgenerator = $generator->get_plugin_generator('core_competency');
@@ -549,7 +549,7 @@ class rule_test extends advanced_testcase {
         \core_competency\api::add_competency_to_course_module($cm, $comp1->get('id'));
         \core_competency\api::add_competency_to_course_module($cm, $comp2->get('id'));
 
-        $this->setUser($user); // Now switch back to user
+        $this->setUser($user); // Now switch back to user.
 
         $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertInstanceOf('quizaccess_failgrade', $rule);
@@ -599,7 +599,7 @@ class rule_test extends advanced_testcase {
         $user = $generator->create_user();
         $generator->enrol_user($user->id, $course->id);
 
-        $this->setAdminUser(); // Set admin to manage competencies
+        $this->setAdminUser(); // Set admin to manage competencies.
 
         // Create framework + two competencies.
         $lpgenerator = $generator->get_plugin_generator('core_competency');
@@ -633,7 +633,7 @@ class rule_test extends advanced_testcase {
         \core_competency\api::grade_competency_in_course($course->id, $user->id, $comp1->get('id'), 3, true);
         \core_competency\api::grade_competency_in_course($course->id, $user->id, $comp2->get('id'), 3, true);
 
-        $this->setUser($user); // Now switch back to user
+        $this->setUser($user); // Now switch back to user.
 
         $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertInstanceOf('quizaccess_failgrade', $rule);
