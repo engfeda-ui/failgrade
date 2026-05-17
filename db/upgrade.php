@@ -18,7 +18,7 @@
  * quizaccess_failgrade plugin upgrade steps.
  *
  * @package    quizaccess_failgrade
-  * @copyright  2026 Mahmoud Salem
+ * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2026 quizaccess_failgrade contributors
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

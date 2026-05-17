@@ -19,7 +19,7 @@
  *
  * @package quizaccess
  * @subpackage failgrade
-  * @copyright  2026 Mahmoud Salem
+ * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

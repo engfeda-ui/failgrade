@@ -18,9 +18,9 @@
  * Implementation of the quizaccess_failgrade plugin.
  *
  * @package    quizaccess_failgrade
-  * @copyright  2026 Mahmoud Salem
+ * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
-  * @copyright  2026 Mahmoud Salem
+ * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2026 quizaccess_failgrade contributors
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -44,9 +44,9 @@ if (class_exists('\mod_quiz\local\access_rule_base')) {
  * competencies linked to the quiz course-module (mode 2).
  *
  * @package    quizaccess_failgrade
-  * @copyright  2026 Mahmoud Salem
+ * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
-  * @copyright  2026 Mahmoud Salem
+ * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2026 quizaccess_failgrade contributors
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
