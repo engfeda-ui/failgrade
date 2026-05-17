@@ -141,8 +141,6 @@ class rule_test extends advanced_testcase {
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
-        $rule = quizaccess_failgrade::make($quizobj, 0, false);
-
         $item = \grade_item::fetch([
             'courseid' => $course->id,
             'itemtype' => 'mod',
@@ -171,6 +169,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
+        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertFalse($rule->is_finished(1, $attempt));
         $this->assertEmpty($rule->prevent_new_attempt(1, $attempt));
 
@@ -185,6 +184,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
+        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertTrue($rule->is_finished(2, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(2, $attempt));
 
@@ -199,6 +199,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
+        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertTrue($rule->is_finished(3, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(3, $attempt));
     }
@@ -240,8 +241,6 @@ class rule_test extends advanced_testcase {
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
-        $rule = quizaccess_failgrade::make($quizobj, 0, false);
-
         $item = \grade_item::fetch([
             'courseid' => $course->id,
             'itemtype' => 'mod',
@@ -269,6 +268,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
+        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertFalse($rule->is_finished(1, $attempt));
         $this->assertEmpty($rule->prevent_new_attempt(1, $attempt));
 
@@ -282,6 +282,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
+        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertFalse($rule->is_finished(2, $attempt));
         $this->assertEmpty($rule->prevent_new_attempt(2, $attempt));
 
@@ -297,8 +298,6 @@ class rule_test extends advanced_testcase {
             'failgradeenabled' => 1,
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
-
-        $rule = quizaccess_failgrade::make($quizobj, 0, false);
 
         $item = \grade_item::fetch([
             'courseid' => $course->id,
@@ -327,6 +326,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
+        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertTrue($rule->is_finished(1, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(1, $attempt));
     }
@@ -369,8 +369,6 @@ class rule_test extends advanced_testcase {
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
-        $rule = quizaccess_failgrade::make($quizobj, 0, false);
-
         $item = \grade_item::fetch([
             'courseid' => $course->id,
             'itemtype' => 'mod',
@@ -398,6 +396,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
+        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertFalse($rule->is_finished(1, $attempt));
         $this->assertEmpty($rule->prevent_new_attempt(1, $attempt));
 
@@ -411,6 +410,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
+        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertTrue($rule->is_finished(2, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(2, $attempt));
     }
@@ -451,8 +451,6 @@ class rule_test extends advanced_testcase {
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
-        $rule = quizaccess_failgrade::make($quizobj, 0, false);
-
         $item = \grade_item::fetch([
             'courseid' => $course->id,
             'itemtype' => 'mod',
@@ -480,6 +478,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
+        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertFalse($rule->is_finished(1, $attempt));
         $this->assertEmpty($rule->prevent_new_attempt(1, $attempt));
 
@@ -493,6 +492,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
+        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertTrue($rule->is_finished(2, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(2, $attempt));
     }
@@ -518,7 +518,8 @@ class rule_test extends advanced_testcase {
 
         $user = $generator->create_user();
         $generator->enrol_user($user->id, $course->id);
-        $this->setUser($user);
+
+        $this->setAdminUser(); // Set admin to manage competencies
 
         // Create a competency framework and two competencies.
         $lpgenerator = $generator->get_plugin_generator('core_competency');
@@ -548,6 +549,8 @@ class rule_test extends advanced_testcase {
         \core_competency\api::add_competency_to_course($course->id, $comp1->get('id'));
         \core_competency\api::add_competency_to_course($course->id, $comp2->get('id'));
 
+        $this->setUser($user); // Now switch back to user
+
         $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertInstanceOf('quizaccess_failgrade', $rule);
 
@@ -570,6 +573,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_finish($timenow, false);
 
         // No competency is marked proficient -> quiz must remain open (is_finished = false).
+        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertFalse($rule->is_finished(1, $attempt));
         $this->assertFalse($rule->prevent_new_attempt(1, $attempt));
     }
@@ -594,7 +598,8 @@ class rule_test extends advanced_testcase {
 
         $user = $generator->create_user();
         $generator->enrol_user($user->id, $course->id);
-        $this->setUser($user);
+
+        $this->setAdminUser(); // Set admin to manage competencies
 
         // Create framework + two competencies.
         $lpgenerator = $generator->get_plugin_generator('core_competency');
@@ -625,11 +630,10 @@ class rule_test extends advanced_testcase {
         \core_competency\api::add_competency_to_course($course->id, $comp2->get('id'));
 
         // Mark BOTH competencies as proficient for this user in this course.
-        $admin = get_admin();
-        $this->setUser($admin);
         \core_competency\api::grade_competency_in_course($course->id, $user->id, $comp1->get('id'), 3, true);
         \core_competency\api::grade_competency_in_course($course->id, $user->id, $comp2->get('id'), 3, true);
-        $this->setUser($user);
+
+        $this->setUser($user); // Now switch back to user
 
         $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertInstanceOf('quizaccess_failgrade', $rule);
@@ -653,6 +657,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_finish($timenow, false);
 
         // Both competencies achieved -> quiz must be finished (is_finished = true).
+        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertTrue($rule->is_finished(1, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(1, $attempt));
     }
