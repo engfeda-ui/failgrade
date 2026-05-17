@@ -15,10 +15,11 @@ Based on the [Reattempt Checker - a quiz access rule](https://moodle.org/plugins
 
 Please refer to the official documentation: [Installing Plugins](https://docs.moodle.org/en/Installing_plugins)
 
-## Requirements
+## Requirements & Compatibility
 
-- Moodle 4.0 minimum (2022041900)
-- Supports Moodle 4.0 up to 5.0+
+- **Moodle Compatibility:** Moodle 4.0 up to 5.0+ (Fully compatible with Moodle 4.5 / `MOODLE_405_STABLE` and Moodle 5.0+).
+- **PHP Compatibility:** PHP 8.1, 8.2, and 8.3.
+- **Database:** PostgreSQL (13+) or MySQL/MariaDB.
 
 # Status / Roadmap
 
