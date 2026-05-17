@@ -120,16 +120,15 @@ class quizaccess_failgrade extends quiz_access_rule_base {
             if (count($cmcompetencies) > 0) {
                 $missingcompetencies = [];
                 foreach ($cmcompetencies as $cmcomp) {
-                    
                     // Safe property extraction to support both arrays and objects.
                     $competencyid = null;
                     if (is_array($cmcomp)) {
                         if (isset($cmcomp['competencyid'])) {
                             $competencyid = $cmcomp['competencyid'];
-                        } elseif (isset($cmcomp['competency'])) {
+                        } else if (isset($cmcomp['competency'])) {
                             $competencyid = $cmcomp['competency']->get('id');
                         }
-                    } elseif (method_exists($cmcomp, 'get')) {
+                    } else if (method_exists($cmcomp, 'get')) {
                         $competencyid = $cmcomp->get('competencyid');
                     } else {
                         $competencyid = $cmcomp->competencyid;
@@ -147,10 +146,10 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                         if (is_array($usercomp)) {
                             if (isset($usercomp['proficiency'])) {
                                 $isproficient = $usercomp['proficiency'];
-                            } elseif (isset($usercomp['usercompetencycourse'])) {
+                            } else if (isset($usercomp['usercompetencycourse'])) {
                                 $isproficient = $usercomp['usercompetencycourse']->get('proficiency');
                             }
-                        } elseif (method_exists($usercomp, 'get')) {
+                        } else if (method_exists($usercomp, 'get')) {
                             $isproficient = $usercomp->get('proficiency');
                         } else {
                             $isproficient = $usercomp->proficiency ?? false;
@@ -227,16 +226,15 @@ class quizaccess_failgrade extends quiz_access_rule_base {
             if ($totalcompetencies > 0) {
                 $achievedcompetencies = 0;
                 foreach ($cmcompetencies as $cmcomp) {
-                    
                     // Safe property extraction to support both arrays and objects.
                     $competencyid = null;
                     if (is_array($cmcomp)) {
                         if (isset($cmcomp['competencyid'])) {
                             $competencyid = $cmcomp['competencyid'];
-                        } elseif (isset($cmcomp['competency'])) {
+                        } else if (isset($cmcomp['competency'])) {
                             $competencyid = $cmcomp['competency']->get('id');
                         }
-                    } elseif (method_exists($cmcomp, 'get')) {
+                    } else if (method_exists($cmcomp, 'get')) {
                         $competencyid = $cmcomp->get('competencyid');
                     } else {
                         $competencyid = $cmcomp->competencyid;
@@ -250,10 +248,10 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                         if (is_array($usercomp)) {
                             if (isset($usercomp['proficiency'])) {
                                 $isproficient = $usercomp['proficiency'];
-                            } elseif (isset($usercomp['usercompetencycourse'])) {
+                            } else if (isset($usercomp['usercompetencycourse'])) {
                                 $isproficient = $usercomp['usercompetencycourse']->get('proficiency');
                             }
-                        } elseif (method_exists($usercomp, 'get')) {
+                        } else if (method_exists($usercomp, 'get')) {
                             $isproficient = $usercomp->get('proficiency');
                         } else {
                             $isproficient = $usercomp->proficiency ?? false;
