@@ -19,7 +19,7 @@
  *
  * @package   quizaccess_failgrade
  * @copyright  2026 Mahmoud Salem
- * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
+ * @copyright  based on work by 2020 Alexandre Paes Rigão <rigao.com.br>
  * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2026 quizaccess_failgrade contributors
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,9 +27,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026051901;
+$plugin->version   = 2026051902;
 $plugin->requires  = 2022041900; // Moodle 4.0 minimum.
 $plugin->supported = [400, 500];  // Moodle 4.0 – 5.0.
 $plugin->component = 'quizaccess_failgrade';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v2.1.0';
+$plugin->release   = 'v2.1.1';
