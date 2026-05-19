@@ -209,9 +209,11 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                         $thresholdval = $threshold . '%';
 
                         if ($isproficient) {
-                            $statusbadge = '<span class="badge badge-success bg-success text-white p-2">' . get_string('competencytable_passed', 'quizaccess_failgrade') . '</span>';
+                            $statusbadge = '<span class="badge badge-success bg-success text-white p-2">' .
+                                get_string('competencytable_passed', 'quizaccess_failgrade') . '</span>';
                         } else {
-                            $statusbadge = '<span class="badge badge-danger bg-danger text-white p-2">' . get_string('competencytable_failed', 'quizaccess_failgrade') . '</span>';
+                            $statusbadge = '<span class="badge badge-danger bg-danger text-white p-2">' .
+                                get_string('competencytable_failed', 'quizaccess_failgrade') . '</span>';
                         }
 
                         $tablehtml .= '<tr>';
@@ -289,7 +291,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
         $row = $DB->get_record_sql($sql, [
             'quizid' => $this->quizobj->get_quizid(),
             'userid' => $userid,
-            'competencyid' => $competencyid
+            'competencyid' => $competencyid,
         ]);
         if ($row && $row->questions > 0) {
             return ($row->correct / $row->questions) * 100;

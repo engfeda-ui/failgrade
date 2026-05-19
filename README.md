@@ -5,23 +5,26 @@
 [![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20MySQL%20%7C%20MariaDB-purple.svg?style=flat-square)](https://docs.moodle.org)
 [![License](https://img.shields.io/badge/License-GPL%20v3-green.svg?style=flat-square)](http://www.gnu.org/copyleft/gpl.html)
 
-An essential Moodle quiz access rule plugin designed to enforce mastery-based learning. This plugin prevents students from starting new quiz attempts once they have achieved a passing grade, encouraging them to focus on other areas once competency is proven.
+An essential Moodle quiz access rule plugin designed to enforce mastery-based learning. This plugin prevents students from starting new quiz attempts once they have proven their competency, encouraging them to focus on other areas once mastery is achieved.
 
-Based on and updating the legacy `Reattempt Checker` and `Pass Grade` access rules, this plugin simplifies integration by leveraging Moodle’s native **"Grade to pass"** configuration.
+It supports dual-mode locking: traditional **Grade-Based** locking and a brand new, highly customizable **Competency-Based** locking mode.
 
 ---
 
 ## ✨ Features
 
-- **Automated Mastery Locking:** Restricts students from making additional attempts once they reach or exceed the passing grade.
-- **Native Moodle Integration:** Leverages Moodle’s built-in **"Grade to pass"** (located under Grade settings) without requiring custom database fields.
-- **Customizable Feedback:** Provides clear, professional notifications to students explaining that they have passed and why further attempts are locked.
+- **Dual-Mode Mastery Locking:**
+  - **Grade-Based Mode:** Restricts students from making additional attempts once they reach or exceed the quiz's **"Grade to pass"**.
+  - **Competency-Based Mode (NEW):** Prevents students from starting new attempts once they achieve mastery in all Moodle competencies mapped to the quiz.
+- **Custom Per-Quiz Competency Thresholds (NEW):** Allows configuring a custom passing threshold (e.g., `60%`) for each individual quiz. If set to `0`, it falls back to the global report threshold.
+- **Real-Time Competency Progress Table (NEW):** Automatically renders a clean, responsive HTML table for students on the quiz landing page. It lists each mapped competency, the required threshold, their current score, and a colorful status badge (**Passed** / **Needs Improvement**).
+- **Native Moodle Integration:** Leverages Moodle’s built-in quickform API and database layers without requiring complex system dependencies.
 - **Enterprise Standards:**
   - **Privacy Subsystem (GDPR):** Full compliance with Moodle's privacy requirements.
   - **Reliable Backup & Restore:** Integrates with Moodle's core course backup/restore pipeline.
 - **Developer-Grade Quality:**
   - Standardized PHPUnit test coverage for verifying attempt locking logic.
-  - GitHub Actions CI/CD workflows for continuous build and test validation.
+  - Fully compliant with Moodle's strict `PHP_CodeSniffer` (Codechecker) specifications.
 
 ---
 
@@ -53,14 +56,22 @@ Follow these steps to install the plugin manually:
 
 Configuring the lock rule is extremely straightforward:
 
+### A. Grade-Based Mode (الاعتماد على درجة النجاح)
 1. Navigate to your course and select a **Quiz** (or create a new one).
 2. Go to **Quiz Settings > Grade**:
    - Set **Attempts allowed** to more than 1 (e.g., Unlimited, or 3 attempts).
    - Enter a value for **Grade to pass** (e.g., `8.00`).
 3. Expand **Extra restrictions on attempts**:
-   - Check the option **"Lock attempts after passing"** (enabled by this access rule).
+   - Set **"Block extra attempts if passing grade"** to **"Yes (Rely on passing grade)"**.
 4. Save the quiz settings.
-5. **How it works:** When a student takes the quiz and receives a score equal to or higher than `8.00`, any future attempts are automatically locked, and the student sees a friendly "You have already passed this quiz" message.
+
+### B. Competency-Based Mode (الاعتماد على الجدارات)
+1. Navigate to your course and select a **Quiz**.
+2. Expand **Extra restrictions on attempts**:
+   - Set **"Block extra attempts if passing grade"** to **"Yes (Rely on competencies)"**.
+   - A new setting **"Competency success threshold (%)"** will appear. Enter a custom value (e.g., `60` for 60%) or leave it at `0` to use the global report settings.
+3. Map competencies to this quiz's questions using `qbank_competency`.
+4. **How it works:** Students can attempt the quiz. Once they achieve the required percentage threshold across the questions mapped to each competency inside this quiz, they see the success message and their attempt start button is blocked. The real-time progress table visually highlights their status badge by badge.
 
 ---
 
@@ -70,9 +81,10 @@ Configuring the lock rule is extremely straightforward:
 failgrade/
 ├── classes/                # Autoloaded classes (Access rule logic)
 │   └── privacy/            # GDPR Privacy provider implementation
-├── db/                     # Database definitions (install.xml, access.php)
+├── db/                     # Database definitions (install.xml, upgrade.php)
 ├── lang/                   # Language localization packs
 │   ├── en/                 # English translations
+│   ├── ar/                 # Arabic translations (NEW)
 │   └── tr/                 # Turkish translations
 ├── tests/                  # Automated test suites (PHPUnit)
 ├── .github/                # GitHub Action workflows

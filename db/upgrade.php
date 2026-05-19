@@ -45,7 +45,16 @@ function xmldb_quizaccess_failgrade_upgrade($oldversion) {
     if ($oldversion < 2026051901) {
         // Define field competencythreshold to be added to quizaccess_failgrade.
         $table = new xmldb_table('quizaccess_failgrade');
-        $field = new xmldb_field('competencythreshold', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '0', 'failgradeenabled');
+        $field = new xmldb_field(
+            'competencythreshold',
+            XMLDB_TYPE_INTEGER,
+            '3',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'failgradeenabled'
+        );
 
         // Conditionally launch add field competencythreshold.
         if (!$dbman->field_exists($table, $field)) {
