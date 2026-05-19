@@ -117,11 +117,18 @@ class quizaccess_failgrade extends quiz_access_rule_base {
 
         if ($mode == 2 && \core_competency\api::is_enabled()) {
             $cmid = $this->quizobj->get_cmid();
-            $courseid = $this->quizobj->get_courseid();
             $userid = $USER->id;
 
             $cmcompetencies = \core_competency\api::list_course_module_competencies($cmid);
             if (count($cmcompetencies) > 0) {
+                $threshold = isset($this->quiz->competencythreshold) ? (int) $this->quiz->competencythreshold : 0;
+                if ($threshold <= 0) {
+                    $threshold = (int) get_config('local_competency_report', 'success_threshold');
+                    if ($threshold <= 0) {
+                        $threshold = 60; // Default fallback.
+                    }
+                }
+
                 $missingcompetencies = [];
                 foreach ($cmcompetencies as $cmcomp) {
                     // Safe property extraction to support both arrays and objects.
@@ -144,40 +151,80 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                         $competencyid = $cmcomp->competencyid;
                     }
 
-                    // Corrected parameter order: courseid, userid, competencyid.
-                    $usercomp = \core_competency\api::get_user_competency_in_course(
-                        $courseid,
-                        $userid,
-                        $competencyid
-                    );
-
-                    // Safe extraction for proficiency.
-                    $isproficient = false;
-                    if ($usercomp) {
-                        if (is_array($usercomp)) {
-                            if (isset($usercomp['proficiency'])) {
-                                $isproficient = $usercomp['proficiency'];
-                            } else if (isset($usercomp['usercompetencycourse'])) {
-                                $ucc = $usercomp['usercompetencycourse'];
-                                if (is_array($ucc)) {
-                                    $isproficient = $ucc['proficiency'] ?? false;
-                                } else if (is_object($ucc) && method_exists($ucc, 'get')) {
-                                    $isproficient = $ucc->get('proficiency');
-                                } else if (is_object($ucc)) {
-                                    $isproficient = $ucc->proficiency ?? false;
-                                }
-                            }
-                        } else if (method_exists($usercomp, 'get')) {
-                            $isproficient = $usercomp->get('proficiency');
-                        } else {
-                            $isproficient = $usercomp->proficiency ?? false;
-                        }
-                    }
+                    $rate = $this->get_user_competency_rate($userid, $competencyid);
+                    $isproficient = ($rate !== null && $rate >= $threshold);
 
                     if (!$isproficient) {
                         $competency = new \core_competency\competency($competencyid);
-                        $missingcompetencies[] = $competency->get('shortname');
+                        $rateval = ($rate !== null) ? sprintf('%.1f', $rate) : '0.0';
+                        $missingcompetencies[] = get_string('competencyprogress', 'quizaccess_failgrade', [
+                            'name' => $competency->get('shortname'),
+                            'rate' => $rateval,
+                            'threshold' => $threshold,
+                        ]);
                     }
+                }
+
+                // Build the Competency Progress Table.
+                $tablehtml = '';
+                if (has_capability('mod/quiz:attempt', $this->quizobj->get_context())) {
+                    $tablehtml .= '<div class="competency-results-table mt-4">';
+                    $tablehtml .= '<h3>' . get_string('competencytable_heading', 'quizaccess_failgrade') . '</h3>';
+                    $tablehtml .= '<table class="table table-striped table-bordered table-hover mt-2">';
+                    $tablehtml .= '<thead>';
+                    $tablehtml .= '<tr>';
+                    $tablehtml .= '<th>' . get_string('competencytable_comp', 'quizaccess_failgrade') . '</th>';
+                    $tablehtml .= '<th>' . get_string('competencytable_required', 'quizaccess_failgrade') . '</th>';
+                    $tablehtml .= '<th>' . get_string('competencytable_achieved', 'quizaccess_failgrade') . '</th>';
+                    $tablehtml .= '<th>' . get_string('competencytable_status', 'quizaccess_failgrade') . '</th>';
+                    $tablehtml .= '</tr>';
+                    $tablehtml .= '</thead>';
+                    $tablehtml .= '<tbody>';
+
+                    foreach ($cmcompetencies as $cmcomp) {
+                        $competencyid = null;
+                        if (is_array($cmcomp)) {
+                            if (isset($cmcomp['competencyid'])) {
+                                $competencyid = $cmcomp['competencyid'];
+                            } else if (isset($cmcomp['competency'])) {
+                                if (is_array($cmcomp['competency'])) {
+                                    $competencyid = $cmcomp['competency']['id'] ?? null;
+                                } else if (is_object($cmcomp['competency']) && method_exists($cmcomp['competency'], 'get')) {
+                                    $competencyid = $cmcomp['competency']->get('id');
+                                } else if (is_object($cmcomp['competency'])) {
+                                    $competencyid = $cmcomp['competency']->id ?? null;
+                                }
+                            }
+                        } else if (method_exists($cmcomp, 'get')) {
+                            $competencyid = $cmcomp->get('competencyid');
+                        } else {
+                            $competencyid = $cmcomp->competencyid;
+                        }
+
+                        $rate = $this->get_user_competency_rate($userid, $competencyid);
+                        $isproficient = ($rate !== null && $rate >= $threshold);
+                        $competency = new \core_competency\competency($competencyid);
+
+                        $rateval = ($rate !== null) ? sprintf('%.1f', $rate) . '%' : '0.0%';
+                        $thresholdval = $threshold . '%';
+
+                        if ($isproficient) {
+                            $statusbadge = '<span class="badge badge-success bg-success text-white p-2">' . get_string('competencytable_passed', 'quizaccess_failgrade') . '</span>';
+                        } else {
+                            $statusbadge = '<span class="badge badge-danger bg-danger text-white p-2">' . get_string('competencytable_failed', 'quizaccess_failgrade') . '</span>';
+                        }
+
+                        $tablehtml .= '<tr>';
+                        $tablehtml .= '<td><strong>' . s($competency->get('shortname')) . '</strong></td>';
+                        $tablehtml .= '<td>' . $thresholdval . '</td>';
+                        $tablehtml .= '<td>' . $rateval . '</td>';
+                        $tablehtml .= '<td>' . $statusbadge . '</td>';
+                        $tablehtml .= '</tr>';
+                    }
+
+                    $tablehtml .= '</tbody>';
+                    $tablehtml .= '</table>';
+                    $tablehtml .= '</div>';
                 }
 
                 if (!empty($missingcompetencies)) {
@@ -187,6 +234,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                     return $this->descriptioncache = [
                         '<div class="alert alert-warning" role="alert">' .
                         '<i class="fa fa-exclamation-triangle"></i> ' . $message . '</div>',
+                        $tablehtml,
                     ];
                 }
 
@@ -198,16 +246,55 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                     return $this->descriptioncache = [
                         '<div class="alert alert-success" role="alert">' .
                         '<i class="fa fa-check-circle"></i> ' . $successmessage . '</div>',
+                        $tablehtml,
                     ];
                 }
 
                 // Has competencies but no attempts yet — show the generic description.
-                return $this->descriptioncache = [get_string('failgradedescription', 'quizaccess_failgrade')];
+                return $this->descriptioncache = [
+                    get_string('failgradedescription', 'quizaccess_failgrade'),
+                    $tablehtml,
+                ];
             }
         }
 
         // Fallback: Grade mode, or competency mode with no linked competencies.
         return $this->descriptioncache = [get_string('failgradedescription', 'quizaccess_failgrade')];
+    }
+
+    /**
+     * Calculate user competency rate based on attempts for this specific quiz.
+     *
+     * @param int $userid
+     * @param int $competencyid
+     * @return float|null
+     */
+    protected function get_user_competency_rate($userid, $competencyid) {
+        global $DB;
+        $sql = "SELECT CAST(SUM(qa.maxfraction) AS DECIMAL(12,1)) AS questions,
+                       CAST(SUM(qas.fraction) AS DECIMAL(12,1)) AS correct
+                  FROM {quiz_attempts} quiza
+                  JOIN {question_usages} qu ON qu.id = quiza.uniqueid
+                  JOIN {question_attempts} qa ON qa.questionusageid = qu.id
+                  JOIN {qbank_competency_qmap} m ON m.questionid = qa.questionid
+                  JOIN (
+                       SELECT MAX(fraction) AS fraction, questionattemptid
+                         FROM {question_attempt_steps}
+                     GROUP BY questionattemptid
+                  ) qas ON qas.questionattemptid = qa.id
+                 WHERE quiza.quiz = :quizid
+                   AND quiza.userid = :userid
+                   AND m.competencyid = :competencyid";
+
+        $row = $DB->get_record_sql($sql, [
+            'quizid' => $this->quizobj->get_quizid(),
+            'userid' => $userid,
+            'competencyid' => $competencyid
+        ]);
+        if ($row && $row->questions > 0) {
+            return ($row->correct / $row->questions) * 100;
+        }
+        return null;
     }
 
     /**
@@ -237,11 +324,18 @@ class quizaccess_failgrade extends quiz_access_rule_base {
 
         if ($mode == 2 && \core_competency\api::is_enabled()) {
             $cmid = $this->quizobj->get_cmid();
-            $courseid = $this->quizobj->get_courseid();
             $cmcompetencies = \core_competency\api::list_course_module_competencies($cmid);
             $totalcompetencies = count($cmcompetencies);
 
             if ($totalcompetencies > 0) {
+                $threshold = isset($this->quiz->competencythreshold) ? (int) $this->quiz->competencythreshold : 0;
+                if ($threshold <= 0) {
+                    $threshold = (int) get_config('local_competency_report', 'success_threshold');
+                    if ($threshold <= 0) {
+                        $threshold = 60; // Default fallback.
+                    }
+                }
+
                 $achievedcompetencies = 0;
                 foreach ($cmcompetencies as $cmcomp) {
                     // Safe property extraction to support both arrays and objects.
@@ -264,33 +358,8 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                         $competencyid = $cmcomp->competencyid;
                     }
 
-                    // Corrected parameter order: courseid, userid, competencyid.
-                    $usercomp = \core_competency\api::get_user_competency_in_course($courseid, $userid, $competencyid);
-
-                    // Safe extraction for proficiency.
-                    $isproficient = false;
-                    if ($usercomp) {
-                        if (is_array($usercomp)) {
-                            if (isset($usercomp['proficiency'])) {
-                                $isproficient = $usercomp['proficiency'];
-                            } else if (isset($usercomp['usercompetencycourse'])) {
-                                $ucc = $usercomp['usercompetencycourse'];
-                                if (is_array($ucc)) {
-                                    $isproficient = $ucc['proficiency'] ?? false;
-                                } else if (is_object($ucc) && method_exists($ucc, 'get')) {
-                                    $isproficient = $ucc->get('proficiency');
-                                } else if (is_object($ucc)) {
-                                    $isproficient = $ucc->proficiency ?? false;
-                                }
-                            }
-                        } else if (method_exists($usercomp, 'get')) {
-                            $isproficient = $usercomp->get('proficiency');
-                        } else {
-                            $isproficient = $usercomp->proficiency ?? false;
-                        }
-                    }
-
-                    if ($isproficient) {
+                    $rate = $this->get_user_competency_rate($userid, $competencyid);
+                    if ($rate !== null && $rate >= $threshold) {
                         $achievedcompetencies++;
                     }
                 }
@@ -347,6 +416,17 @@ class quizaccess_failgrade extends quiz_access_rule_base {
             $options
         );
         $mform->addHelpButton('failgradeenabled', 'failgradeenabled', 'quizaccess_failgrade');
+
+        $mform->addElement(
+            'text',
+            'competencythreshold',
+            get_string('competencythreshold', 'quizaccess_failgrade'),
+            ['size' => '3', 'maxlength' => '3']
+        );
+        $mform->setType('competencythreshold', PARAM_INT);
+        $mform->setDefault('competencythreshold', 0);
+        $mform->addHelpButton('competencythreshold', 'competencythreshold', 'quizaccess_failgrade');
+        $mform->hideIf('competencythreshold', 'failgradeenabled', 'neq', 2);
     }
 
     /**
@@ -361,14 +441,17 @@ class quizaccess_failgrade extends quiz_access_rule_base {
         if (empty($quiz->failgradeenabled) || $quiz->failgradeenabled == 0) {
             $DB->delete_records('quizaccess_failgrade', ['quizid' => $quiz->id]);
         } else {
+            $competencythreshold = isset($quiz->competencythreshold) ? (int) $quiz->competencythreshold : 0;
             if (!$DB->record_exists('quizaccess_failgrade', ['quizid' => $quiz->id])) {
                 $record = new \stdClass();
                 $record->quizid = $quiz->id;
                 $record->failgradeenabled = $quiz->failgradeenabled;
+                $record->competencythreshold = $competencythreshold;
                 $DB->insert_record('quizaccess_failgrade', $record);
             } else {
                 $record = $DB->get_record('quizaccess_failgrade', ['quizid' => $quiz->id]);
                 $record->failgradeenabled = $quiz->failgradeenabled;
+                $record->competencythreshold = $competencythreshold;
                 $DB->update_record('quizaccess_failgrade', $record);
             }
         }
@@ -398,7 +481,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
      */
     public static function get_settings_sql($quizid) {
         return [
-            'failgradeenabled',
+            'failgradeenabled, competencythreshold',
             'LEFT JOIN {quizaccess_failgrade} failgrade ON failgrade.quizid = quiz.id',
             [],
         ];
