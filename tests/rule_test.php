@@ -555,7 +555,7 @@ class rule_test extends advanced_testcase {
         $this->setUser($user); // Now switch back to user.
 
         // Setup mock rates: student achieved 50% on both competencies (threshold is 60%).
-        $rule = new class($quizobj, 0) extends \quizaccess_failgrade {
+        $rule = new class ($quizobj, 0) extends \quizaccess_failgrade {
             /** @var array Mocked rates for competencies. */
             public $mockrates = [];
 
@@ -642,7 +642,7 @@ class rule_test extends advanced_testcase {
         $this->setUser($user); // Now switch back to user.
 
         // Setup mock rates: student achieved 75% and 80% (both >= 60% threshold).
-        $rule = new class($quizobj, 0) extends \quizaccess_failgrade {
+        $rule = new class ($quizobj, 0) extends \quizaccess_failgrade {
             /** @var array Mocked rates for competencies. */
             public $mockrates = [];
 
