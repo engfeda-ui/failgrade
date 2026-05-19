@@ -555,12 +555,28 @@ class rule_test extends advanced_testcase {
         $this->setUser($user); // Now switch back to user.
 
         // Setup mock rates: student achieved 50% on both competencies (threshold is 60%).
-        testable_quizaccess_failgrade::$mockrates = [
+        $rule = new class($quizobj, 0) extends \quizaccess_failgrade {
+            /** @var array Mocked rates for competencies. */
+            public $mockrates = [];
+
+            /**
+             * Override get_user_competency_rate to return mock rates instead of running DB queries.
+             *
+             * @param int $userid The user ID.
+             * @param int $competencyid The competency ID.
+             * @return float|null The competency rate, or null if none.
+             */
+            protected function get_user_competency_rate($userid, $competencyid) {
+                if (isset($this->mockrates[$competencyid])) {
+                    return $this->mockrates[$competencyid];
+                }
+                return null;
+            }
+        };
+        $rule->mockrates = [
             $comp1->get('id') => 50.0,
             $comp2->get('id') => 50.0,
         ];
-
-        $rule = new testable_quizaccess_failgrade($quizobj, 0);
         $this->assertInstanceOf('quizaccess_failgrade', $rule);
 
         // Simulate one completed quiz attempt.
@@ -626,12 +642,28 @@ class rule_test extends advanced_testcase {
         $this->setUser($user); // Now switch back to user.
 
         // Setup mock rates: student achieved 75% and 80% (both >= 60% threshold).
-        testable_quizaccess_failgrade::$mockrates = [
+        $rule = new class($quizobj, 0) extends \quizaccess_failgrade {
+            /** @var array Mocked rates for competencies. */
+            public $mockrates = [];
+
+            /**
+             * Override get_user_competency_rate to return mock rates instead of running DB queries.
+             *
+             * @param int $userid The user ID.
+             * @param int $competencyid The competency ID.
+             * @return float|null The competency rate, or null if none.
+             */
+            protected function get_user_competency_rate($userid, $competencyid) {
+                if (isset($this->mockrates[$competencyid])) {
+                    return $this->mockrates[$competencyid];
+                }
+                return null;
+            }
+        };
+        $rule->mockrates = [
             $comp1->get('id') => 75.0,
             $comp2->get('id') => 80.0,
         ];
-
-        $rule = new testable_quizaccess_failgrade($quizobj, 0);
         $this->assertInstanceOf('quizaccess_failgrade', $rule);
 
         // Simulate one completed quiz attempt.
@@ -666,29 +698,5 @@ class rule_test extends advanced_testcase {
         // Mode=0 means make() must return null - the rule is not active.
         $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertNull($rule);
-    }
-}
-
-/**
- * Testable subclass of quizaccess_failgrade to mock competency rates during unit tests.
- */
-class testable_quizaccess_failgrade extends \quizaccess_failgrade {
-    /** @var array Mocked rates for competencies. */
-    public static $mockrates = [];
-
-    /**
-     * Override get_user_competency_rate to return mock rates instead of running DB queries.
-     * This avoids dependency on qbank_competency_qmap database table which is not present
-     * in minimal Moodle PHPUnit environments.
-     *
-     * @param int $userid The user ID.
-     * @param int $competencyid The competency ID.
-     * @return float|null The competency rate, or null if none.
-     */
-    protected function get_user_competency_rate($userid, $competencyid) {
-        if (isset(self::$mockrates[$competencyid])) {
-            return self::$mockrates[$competencyid];
-        }
-        return null;
     }
 }
