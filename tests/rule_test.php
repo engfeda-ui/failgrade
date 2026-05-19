@@ -539,6 +539,7 @@ class rule_test extends advanced_testcase {
             'name'             => 'Competency Quiz',
             'grademethod'      => QUIZ_GRADEHIGHEST,
             'failgradeenabled' => 2,
+            'competencythreshold' => 60,
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
@@ -553,29 +554,19 @@ class rule_test extends advanced_testcase {
 
         $this->setUser($user); // Now switch back to user.
 
-        $rule = quizaccess_failgrade::make($quizobj, 0, false);
+        // Setup mock rates: student achieved 50% on both competencies (threshold is 60%).
+        testable_quizaccess_failgrade::$mockrates = [
+            $comp1->get('id') => 50.0,
+            $comp2->get('id') => 50.0,
+        ];
+
+        $rule = new testable_quizaccess_failgrade($quizobj, 0);
         $this->assertInstanceOf('quizaccess_failgrade', $rule);
 
         // Simulate one completed quiz attempt.
-        $questiongenerator = $generator->get_plugin_generator('core_question');
-        $cat  = $questiongenerator->create_question_category();
-        $numq = $questiongenerator->create_question('numerical', null, ['category' => $cat->id]);
-        quiz_add_quiz_question($numq->id, $quiz);
-        $numq = $questiongenerator->create_question('numerical', null, ['category' => $cat->id]);
-        quiz_add_quiz_question($numq->id, $quiz);
-
-        $quba = \question_engine::make_questions_usage_by_activity('mod_quiz', $quizobj->get_context());
-        $quba->set_preferred_behaviour($quizobj->get_quiz()->preferredbehaviour);
-        $timenow = time();
-        $attempt = quiz_create_attempt($quizobj, 1, false, $timenow, false, $user->id);
-        quiz_start_new_attempt($quizobj, $quba, $attempt, 1, $timenow);
-        quiz_attempt_save_started($quizobj, $quba, $attempt);
-        $attemptobj = \quiz_attempt::create($attempt->id);
-        $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
-        $attemptobj->process_finish($timenow, false);
+        $attempt = (object)['userid' => $user->id];
 
         // No competency is marked proficient -> quiz must remain open (is_finished = false).
-        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertFalse($rule->is_finished(1, $attempt));
         $this->assertFalse($rule->prevent_new_attempt(1, $attempt));
     }
@@ -619,6 +610,7 @@ class rule_test extends advanced_testcase {
             'name'             => 'Competency Quiz',
             'grademethod'      => QUIZ_GRADEHIGHEST,
             'failgradeenabled' => 2,
+            'competencythreshold' => 60,
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
@@ -631,35 +623,21 @@ class rule_test extends advanced_testcase {
         \core_competency\api::add_competency_to_course_module($cm, $comp1->get('id'));
         \core_competency\api::add_competency_to_course_module($cm, $comp2->get('id'));
 
-        // Mark BOTH competencies as proficient for this user in this course.
-        \core_competency\api::grade_competency_in_course($course->id, $user->id, $comp1->get('id'), 3, true);
-        \core_competency\api::grade_competency_in_course($course->id, $user->id, $comp2->get('id'), 3, true);
-
         $this->setUser($user); // Now switch back to user.
 
-        $rule = quizaccess_failgrade::make($quizobj, 0, false);
+        // Setup mock rates: student achieved 75% and 80% (both >= 60% threshold).
+        testable_quizaccess_failgrade::$mockrates = [
+            $comp1->get('id') => 75.0,
+            $comp2->get('id') => 80.0,
+        ];
+
+        $rule = new testable_quizaccess_failgrade($quizobj, 0);
         $this->assertInstanceOf('quizaccess_failgrade', $rule);
 
         // Simulate one completed quiz attempt.
-        $questiongenerator = $generator->get_plugin_generator('core_question');
-        $cat  = $questiongenerator->create_question_category();
-        $numq = $questiongenerator->create_question('numerical', null, ['category' => $cat->id]);
-        quiz_add_quiz_question($numq->id, $quiz);
-        $numq = $questiongenerator->create_question('numerical', null, ['category' => $cat->id]);
-        quiz_add_quiz_question($numq->id, $quiz);
-
-        $quba = \question_engine::make_questions_usage_by_activity('mod_quiz', $quizobj->get_context());
-        $quba->set_preferred_behaviour($quizobj->get_quiz()->preferredbehaviour);
-        $timenow = time();
-        $attempt = quiz_create_attempt($quizobj, 1, false, $timenow, false, $user->id);
-        quiz_start_new_attempt($quizobj, $quba, $attempt, 1, $timenow);
-        quiz_attempt_save_started($quizobj, $quba, $attempt);
-        $attemptobj = \quiz_attempt::create($attempt->id);
-        $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
-        $attemptobj->process_finish($timenow, false);
+        $attempt = (object)['userid' => $user->id];
 
         // Both competencies achieved -> quiz must be finished (is_finished = true).
-        $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertTrue($rule->is_finished(1, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(1, $attempt));
     }
@@ -688,5 +666,29 @@ class rule_test extends advanced_testcase {
         // Mode=0 means make() must return null - the rule is not active.
         $rule = quizaccess_failgrade::make($quizobj, 0, false);
         $this->assertNull($rule);
+    }
+}
+
+/**
+ * Testable subclass of quizaccess_failgrade to mock competency rates during unit tests.
+ */
+class testable_quizaccess_failgrade extends \quizaccess_failgrade {
+    /** @var array Mocked rates for competencies. */
+    public static $mockrates = [];
+
+    /**
+     * Override get_user_competency_rate to return mock rates instead of running DB queries.
+     * This avoids dependency on qbank_competency_qmap database table which is not present
+     * in minimal Moodle PHPUnit environments.
+     *
+     * @param int $userid The user ID.
+     * @param int $competencyid The competency ID.
+     * @return float|null The competency rate, or null if none.
+     */
+    protected function get_user_competency_rate($userid, $competencyid) {
+        if (isset(self::$mockrates[$competencyid])) {
+            return self::$mockrates[$competencyid];
+        }
+        return null;
     }
 }
