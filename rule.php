@@ -131,25 +131,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
 
                 $missingcompetencies = [];
                 foreach ($cmcompetencies as $cmcomp) {
-                    // Safe property extraction to support both arrays and objects.
-                    $competencyid = null;
-                    if (is_array($cmcomp)) {
-                        if (isset($cmcomp['competencyid'])) {
-                            $competencyid = $cmcomp['competencyid'];
-                        } else if (isset($cmcomp['competency'])) {
-                            if (is_array($cmcomp['competency'])) {
-                                $competencyid = $cmcomp['competency']['id'] ?? null;
-                            } else if (is_object($cmcomp['competency']) && method_exists($cmcomp['competency'], 'get')) {
-                                $competencyid = $cmcomp['competency']->get('id');
-                            } else if (is_object($cmcomp['competency'])) {
-                                $competencyid = $cmcomp['competency']->id ?? null;
-                            }
-                        }
-                    } else if (method_exists($cmcomp, 'get')) {
-                        $competencyid = $cmcomp->get('competencyid');
-                    } else {
-                        $competencyid = $cmcomp->competencyid;
-                    }
+                    $competencyid = $this->extract_competency_id($cmcomp);
 
                     $rate = $this->get_user_competency_rate($userid, $competencyid);
                     $isproficient = ($rate !== null && $rate >= $threshold);
@@ -182,24 +164,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                     $tablehtml .= '<tbody>';
 
                     foreach ($cmcompetencies as $cmcomp) {
-                        $competencyid = null;
-                        if (is_array($cmcomp)) {
-                            if (isset($cmcomp['competencyid'])) {
-                                $competencyid = $cmcomp['competencyid'];
-                            } else if (isset($cmcomp['competency'])) {
-                                if (is_array($cmcomp['competency'])) {
-                                    $competencyid = $cmcomp['competency']['id'] ?? null;
-                                } else if (is_object($cmcomp['competency']) && method_exists($cmcomp['competency'], 'get')) {
-                                    $competencyid = $cmcomp['competency']->get('id');
-                                } else if (is_object($cmcomp['competency'])) {
-                                    $competencyid = $cmcomp['competency']->id ?? null;
-                                }
-                            }
-                        } else if (method_exists($cmcomp, 'get')) {
-                            $competencyid = $cmcomp->get('competencyid');
-                        } else {
-                            $competencyid = $cmcomp->competencyid;
-                        }
+                        $competencyid = $this->extract_competency_id($cmcomp);
 
                         $rate = $this->get_user_competency_rate($userid, $competencyid);
                         $isproficient = ($rate !== null && $rate >= $threshold);
@@ -262,6 +227,41 @@ class quizaccess_failgrade extends quiz_access_rule_base {
 
         // Fallback: Grade mode, or competency mode with no linked competencies.
         return $this->descriptioncache = [get_string('failgradedescription', 'quizaccess_failgrade')];
+    }
+
+    /**
+     * Extract the competency ID from a course-module competency entry.
+     *
+     * The Moodle core_competency API can return competency entries as plain objects,
+     * persistent objects (with a get() method), or arrays depending on the Moodle
+     * version and calling context. This helper normalises all three shapes.
+     *
+     * @param mixed $cmcomp A single entry from core_competency\api::list_course_module_competencies().
+     * @return int|null The competency ID, or null if it cannot be resolved.
+     */
+    protected function extract_competency_id($cmcomp) {
+        if (is_array($cmcomp)) {
+            if (isset($cmcomp['competencyid'])) {
+                return (int) $cmcomp['competencyid'];
+            }
+            if (isset($cmcomp['competency'])) {
+                $comp = $cmcomp['competency'];
+                if (is_array($comp)) {
+                    return isset($comp['id']) ? (int) $comp['id'] : null;
+                }
+                if (is_object($comp) && method_exists($comp, 'get')) {
+                    return (int) $comp->get('id');
+                }
+                if (is_object($comp)) {
+                    return isset($comp->id) ? (int) $comp->id : null;
+                }
+            }
+            return null;
+        }
+        if (method_exists($cmcomp, 'get')) {
+            return (int) $cmcomp->get('competencyid');
+        }
+        return isset($cmcomp->competencyid) ? (int) $cmcomp->competencyid : null;
     }
 
     /**
@@ -340,25 +340,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
 
                 $achievedcompetencies = 0;
                 foreach ($cmcompetencies as $cmcomp) {
-                    // Safe property extraction to support both arrays and objects.
-                    $competencyid = null;
-                    if (is_array($cmcomp)) {
-                        if (isset($cmcomp['competencyid'])) {
-                            $competencyid = $cmcomp['competencyid'];
-                        } else if (isset($cmcomp['competency'])) {
-                            if (is_array($cmcomp['competency'])) {
-                                $competencyid = $cmcomp['competency']['id'] ?? null;
-                            } else if (is_object($cmcomp['competency']) && method_exists($cmcomp['competency'], 'get')) {
-                                $competencyid = $cmcomp['competency']->get('id');
-                            } else if (is_object($cmcomp['competency'])) {
-                                $competencyid = $cmcomp['competency']->id ?? null;
-                            }
-                        }
-                    } else if (method_exists($cmcomp, 'get')) {
-                        $competencyid = $cmcomp->get('competencyid');
-                    } else {
-                        $competencyid = $cmcomp->competencyid;
-                    }
+                    $competencyid = $this->extract_competency_id($cmcomp);
 
                     $rate = $this->get_user_competency_rate($userid, $competencyid);
                     if ($rate !== null && $rate >= $threshold) {

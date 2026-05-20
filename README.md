@@ -4,10 +4,11 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3-blue.svg?style=flat-square)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20MySQL%20%7C%20MariaDB-purple.svg?style=flat-square)](https://docs.moodle.org)
 [![License](https://img.shields.io/badge/License-GPL%20v3-green.svg?style=flat-square)](http://www.gnu.org/copyleft/gpl.html)
+[![Version](https://img.shields.io/badge/Version-v2.1.2-blue.svg?style=flat-square)](https://github.com)
 
 An essential Moodle quiz access rule plugin designed to enforce mastery-based learning. This plugin prevents students from starting new quiz attempts once they have proven their competency, encouraging them to focus on other areas once mastery is achieved.
 
-It supports dual-mode locking: traditional **Grade-Based** locking and a brand new, highly customizable **Competency-Based** locking mode.
+It supports dual-mode locking: traditional **Grade-Based** locking and a highly customisable **Competency-Based** locking mode.
 
 ---
 
@@ -15,16 +16,13 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a brand n
 
 - **Dual-Mode Mastery Locking:**
   - **Grade-Based Mode:** Restricts students from making additional attempts once they reach or exceed the quiz's **"Grade to pass"**.
-  - **Competency-Based Mode (NEW):** Prevents students from starting new attempts once they achieve mastery in all Moodle competencies mapped to the quiz.
-- **Custom Per-Quiz Competency Thresholds (NEW):** Allows configuring a custom passing threshold (e.g., `60%`) for each individual quiz. If set to `0`, it falls back to the global report threshold.
-- **Real-Time Competency Progress Table (NEW):** Automatically renders a clean, responsive HTML table for students on the quiz landing page. It lists each mapped competency, the required threshold, their current score, and a colorful status badge (**Passed** / **Needs Improvement**).
-- **Native Moodle Integration:** Leverages Moodle’s built-in quickform API and database layers without requiring complex system dependencies.
-- **Enterprise Standards:**
-  - **Privacy Subsystem (GDPR):** Full compliance with Moodle's privacy requirements.
-  - **Reliable Backup & Restore:** Integrates with Moodle's core course backup/restore pipeline.
-- **Developer-Grade Quality:**
-  - Standardized PHPUnit test coverage for verifying attempt locking logic.
-  - Fully compliant with Moodle's strict `PHP_CodeSniffer` (Codechecker) specifications.
+  - **Competency-Based Mode:** Prevents students from starting new attempts once they achieve mastery in all Moodle competencies mapped to the quiz via `qbank_competency`.
+- **Custom Per-Quiz Competency Threshold:** Configure a custom passing percentage (e.g., `60%`) per quiz. If set to `0`, falls back to the global `success_threshold` defined in `local_competency_report` settings.
+- **Real-Time Competency Progress Table:** Renders a responsive Bootstrap table on the quiz landing page showing each mapped competency, the required threshold, the student's current score, and a colour-coded status badge (**Passed** / **Needs Improvement**).
+- **Moodle Event Logging:** Fires a `attempt_blocked_by_failgrade` event when a student is blocked, providing a full audit trail in Moodle's log store.
+- **Privacy Subsystem (GDPR):** Full compliance with Moodle's privacy API.
+- **Backup & Restore:** Integrates with Moodle's core course backup/restore pipeline.
+- **PHPUnit Test Coverage:** Standardised tests for attempt locking logic.
 
 ---
 
@@ -32,83 +30,109 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a brand n
 
 | Dependency | Required Version / Compatibility |
 | :--- | :--- |
-| **Moodle Framework** | Moodle 4.0 to 5.0+ (Tested against Moodle 4.5/5.0+ stable branches) |
+| **Moodle Framework** | Moodle 4.0 to 5.0+ |
 | **PHP Runtime** | PHP 8.1, PHP 8.2, PHP 8.3 |
 | **Database System** | PostgreSQL 13+, MySQL 8.0+, or MariaDB 10.5+ |
+| **Required Plugin** | [**`qbank_competency`**](https://github.com/engfeda-ui/moodle-qbank_competency) ≥ 2026031240 (for competency mode) |
 
 ---
 
 ## 🚀 Installation
 
-Follow these steps to install the plugin manually:
-
-1. **Download & Extract:** Download the repository and extract the files.
-2. **Directory Placement:** Copy the `failgrade` folder into your Moodle installation's quiz access rules directory:
-   ```bash
+1. **Prerequisite (for competency mode):** Install [**`qbank_competency`**](https://github.com/engfeda-ui/moodle-qbank_competency) first.
+2. **Download & Extract:** Download the repository and extract the files.
+3. **Directory Placement:** Copy the `failgrade` folder into your Moodle quiz access rules directory:
+   ```
    moodle/mod/quiz/accessrule/failgrade
    ```
-3. **Run Moodle Upgrade:** Log in to your Moodle site as an Administrator and navigate to **Site administration > Notifications** to trigger the database upgrade and complete the installation.
-4. **Alternative Install:** Alternatively, zip the directory and upload it via **Site administration > Plugins > Install plugins**.
+4. **Run Moodle Upgrade:** Log in as Administrator and navigate to **Site administration > Notifications**.
+5. **Alternative Install:** Zip the directory and upload via **Site administration > Plugins > Install plugins**.
 
 ---
 
 ## 🛠️ Usage & Configuration
 
-Configuring the lock rule is extremely straightforward:
-
-### A. Grade-Based Mode (الاعتماد على درجة النجاح)
-1. Navigate to your course and select a **Quiz** (or create a new one).
-2. Go to **Quiz Settings > Grade**:
-   - Set **Attempts allowed** to more than 1 (e.g., Unlimited, or 3 attempts).
-   - Enter a value for **Grade to pass** (e.g., `8.00`).
-3. Expand **Extra restrictions on attempts**:
-   - Set **"Block extra attempts if passing grade"** to **"Yes (Rely on passing grade)"**.
-4. Save the quiz settings.
-
-### B. Competency-Based Mode (الاعتماد على الجدارات)
-1. Navigate to your course and select a **Quiz**.
+### A. Grade-Based Mode
+1. Open a **Quiz** and go to **Quiz Settings > Grade**:
+   - Set **Attempts allowed** to more than 1.
+   - Set a **Grade to pass** value (e.g., `8.00`).
 2. Expand **Extra restrictions on attempts**:
-   - Set **"Block extra attempts if passing grade"** to **"Yes (Rely on competencies)"**.
-   - A new setting **"Competency success threshold (%)"** will appear. Enter a custom value (e.g., `60` for 60%) or leave it at `0` to use the global report settings.
-3. Map competencies to this quiz's questions using `qbank_competency`.
-4. **How it works:** Students can attempt the quiz. Once they achieve the required percentage threshold across the questions mapped to each competency inside this quiz, they see the success message and their attempt start button is blocked. The real-time progress table visually highlights their status badge by badge.
+   - Set **"Block extra attempts if passing grade"** → **"Yes (Rely on passing grade)"**.
+3. Save. Students are blocked from new attempts once they reach the passing grade.
+
+### B. Competency-Based Mode
+1. Open a **Quiz** and expand **Extra restrictions on attempts**:
+   - Set **"Block extra attempts if passing grade"** → **"Yes (Rely on competencies)"**.
+   - A **"Competency success threshold (%)"** field appears. Enter a value (e.g., `60`) or leave at `0` to use the global threshold from `local_competency_report` settings.
+2. Map competencies to this quiz's questions using `qbank_competency`.
+3. Students can attempt the quiz freely until they achieve the required percentage across all mapped competencies. Once mastered, the attempt button is blocked and a success message is shown.
+
+> **Global threshold:** Configure the default threshold at **Site administration > Plugins > Local plugins > Competency Plugin > Success threshold**.
+
+---
+
+## 📋 Changelog
+
+### v2.1.2 — 2026-05-19
+- **New:** `qbank_competency` formally declared as a plugin dependency in `version.php`. Moodle will now refuse to install `quizaccess_failgrade` if `qbank_competency` is not present.
+- **Refactor:** Extracted `extract_competency_id($cmcomp)` as a protected helper method in `rule.php`. The ~30-line competency ID extraction block was previously duplicated three times across `description()` and `is_finished()` — now centralised in one place.
+
+### v2.1.1 — 2026-05-15
+- Added `competencythreshold` field to the database schema via upgrade script.
+- Added per-quiz competency threshold setting to the quiz settings form.
+
+### v2.1.0 — 2026-05-15
+- Competency-based mode (mode 2) introduced.
+- Real-time competency progress table on the quiz view page.
+- `attempt_blocked_by_failgrade` Moodle event for audit logging.
+
+### v2.0.0 — 2026-05-15
+- Three-mode selector: Disabled / Grade-based / Competency-based.
+
+### v1.x
+- Original grade-based locking (based on work by Alexandre Paes Rigão).
 
 ---
 
 ## 💻 Directory Structure
 
-```text
+```
 failgrade/
-├── classes/                # Autoloaded classes (Access rule logic)
-│   └── privacy/            # GDPR Privacy provider implementation
-├── db/                     # Database definitions (install.xml, upgrade.php)
-├── lang/                   # Language localization packs
-│   ├── en/                 # English translations
-│   ├── ar/                 # Arabic translations (NEW)
-│   └── tr/                 # Turkish translations
-├── tests/                  # Automated test suites (PHPUnit)
-├── .github/                # GitHub Action workflows
-├── version.php             # Moodle plugin version and dependency definition
-└── README.md               # Professional documentation
+├── classes/
+│   ├── event/
+│   │   └── attempt_blocked_by_failgrade.php  # Moodle event class
+│   └── privacy/
+│       └── provider.php                      # GDPR Privacy provider
+├── db/
+│   ├── install.xml     # Database schema
+│   └── upgrade.php     # Upgrade steps
+├── lang/
+│   └── en/             # English language strings
+├── tests/              # PHPUnit test suites
+├── .github/            # GitHub Actions CI workflows
+├── rule.php            # Main access rule class
+├── version.php         # Plugin version and metadata
+└── README.md
 ```
 
 ---
 
-## 🔒 Security & Privacy (GDPR)
+## 🔗 The Competency Ecosystem
 
-This plugin fully supports Moodle's Privacy Subsystem:
-- It exports student attempt metadata in compliance with GDPR requests.
-- It handles the safe deletion of user data upon request.
-- Passwords are encrypted/stored securely in compliance with standard database practices.
+```mermaid
+graph TD
+    A[qbank_competency] -->|Maps questions to competencies| B[local_competency_report]
+    B -->|Provides global threshold config| E[quizaccess_failgrade]
+    A -->|Provides question-competency data| E
+    E -->|Blocks attempts after mastery| F[Quiz Attempt Page]
+```
 
 ---
 
 ## 🧪 Development & Testing
 
-We maintain high code quality standards. Run automated tests using Moodle's PHPUnit framework:
-
 ```bash
-# Initialize PHPUnit environment
+# Initialise PHPUnit environment
 php admin/tool/phpunit/cli/init.php
 
 # Run tests for this plugin
@@ -119,18 +143,16 @@ vendor/bin/phpunit --group quizaccess_failgrade
 
 ## 🔒 Security & Code Compliance
 
-This plugin has been audited and hardened according to Moodle's strict security and quality guidelines:
-
-- **CSRF Protection:** Standard Moodle session key verification (`require_sesskey()`) is enforced on all state-mutating actions (such as queueing calculations).
-- **SQL Injection Prevention:** Every query utilizes Moodle's Database API (`$DB`) with parameter bindings and named placeholders (`:named`), completely avoiding raw SQL interpolation and protecting against injection attacks.
-- **Input Sanitization:** Direct superglobals (`$_GET`, `$_POST`, `$_REQUEST`) are strictly forbidden. Input retrieval uses standard Moodle validation helpers like `required_param()` and `optional_param()` with strict parameter type filters (`PARAM_INT`, `PARAM_BOOL`, etc.).
-- **Capability Controls:** Page entry points verify course contexts with `require_login()` and validate explicit capabilities (e.g. `mod/quiz:viewreports`, `local_competency_report:viewreports`) via `require_capability()`.
-- **Frankenstyle & Namespace Compliance:** Database tables and autoloaded classes are strictly prefixed and namespaced (e.g. `\local_competency_report\...` or `\quizaccess_failgrade\...`) preventing any class name or table name collisions.
-- **Coding Standards:** Code is audited via `PHP_CodeSniffer` (PHPCS) enforcing clean syntax, proper DocBlocks, and standard Moodle conventions.
+- **SQL Injection Prevention:** All queries use Moodle's `$DB` API with named parameter bindings.
+- **Input Sanitization:** All input retrieved via `required_param()` / `optional_param()` with strict type filters.
+- **Capability Controls:** Access points enforce `require_login()` and `require_capability()`.
+- **Namespace Compliance:** Event and privacy classes under `\quizaccess_failgrade\` namespace.
+- **Coding Standards:** Compliant with Moodle's `PHP_CodeSniffer` (PHPCS) ruleset.
 
 ---
 
 ## 📄 License & Credits
 
 - **Copyright:** © 2026 Mahmoud Salem
-- **License:** Licensed under the [GNU GPL v3 License](http://www.gnu.org/copyleft/gpl.html) (or later).
+- **Based on work by:** 2020 Alexandre Paes Rigão
+- **License:** [GNU GPL v3](http://www.gnu.org/copyleft/gpl.html) or later.
