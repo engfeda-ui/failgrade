@@ -33,7 +33,7 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 | **Moodle Framework** | Moodle 4.0 to 5.0+ |
 | **PHP Runtime** | PHP 8.1, PHP 8.2, PHP 8.3 |
 | **Database System** | PostgreSQL 13+, MySQL 8.0+, or MariaDB 10.5+ |
-| **Required Plugin** | [**`qbank_competency`**](https://github.com/engfeda-ui/moodle-qbank_competency) ≥ 2026031240 (for competency mode) |
+| **Required Plugin** | [**`qbank_competency`**](https://github.com/engfeda-ui/moodle-qbank_competency) ≥ 2026052003 (for competency mode) |
 
 ---
 
