@@ -50,7 +50,7 @@ class backup_quizaccess_failgrade_subplugin extends backup_mod_quiz_access_subpl
         $subplugintablesettings = new backup_nested_element(
             'quizaccess_failgrade',
             null,
-            ['failgradeenabled']
+            ['failgradeenabled', 'competencythreshold']
         );
 
         // Connect XML elements into the tree.

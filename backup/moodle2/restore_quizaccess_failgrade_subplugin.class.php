@@ -63,6 +63,12 @@ class restore_quizaccess_failgrade_subplugin extends restore_mod_quiz_access_sub
 
         $data = (object)$data;
         $data->quizid = $this->get_new_parentid('quiz');
+
+        // Ensure competencythreshold exists (may be absent in backups from older versions).
+        if (!isset($data->competencythreshold)) {
+            $data->competencythreshold = 0;
+        }
+
         $DB->insert_record('quizaccess_failgrade', $data);
     }
 }
