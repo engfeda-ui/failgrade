@@ -115,7 +115,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
 
         $mode = isset($this->quiz->failgradeenabled) ? $this->quiz->failgradeenabled : 1;
 
-        if ($mode == 2 && \core_competency\api::is_enabled()) {
+        if (($mode == 2 || $mode == 3) && \core_competency\api::is_enabled()) {
             $cmid = $this->quizobj->get_cmid();
             $userid = $USER->id;
 
@@ -152,7 +152,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                 if (has_capability('mod/quiz:attempt', $this->quizobj->get_context())) {
                     $tablehtml .= '<div class="competency-results-table mt-4">';
                     $tablehtml .= '<h3>' . get_string('competencytable_heading', 'quizaccess_failgrade') . '</h3>';
-                    $tablehtml .= '<table class="table table-striped table-bordered table-hover mt-2">';
+                    $tablehtml .= '<table class="table table-striped table-bordered table-hover mt-2 align-middle">';
                     $tablehtml .= '<thead>';
                     $tablehtml .= '<tr>';
                     $tablehtml .= '<th>' . get_string('competencytable_comp', 'quizaccess_failgrade') . '</th>';
@@ -167,24 +167,30 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                         $competencyid = $this->extract_competency_id($cmcomp);
 
                         $rate = $this->get_user_competency_rate($userid, $competencyid);
-                        $isproficient = ($rate !== null && $rate >= $threshold);
                         $competency = new \core_competency\competency($competencyid);
 
-                        $rateval = ($rate !== null) ? sprintf('%.1f', $rate) . '%' : '0.0%';
+                        $rateint = ($rate !== null) ? (int)$rate : 0;
                         $thresholdval = $threshold . '%';
 
-                        if ($isproficient) {
-                            $statusbadge = '<span class="badge badge-success bg-success text-white p-2">' .
+                        if ($rateint >= $threshold) {
+                            $bgclass = 'bg-success';
+                            $statusbadge = '<span class="badge badge-success bg-success text-white p-2"><i class="fa fa-check-circle mr-1"></i> ' .
                                 get_string('competencytable_passed', 'quizaccess_failgrade') . '</span>';
                         } else {
-                            $statusbadge = '<span class="badge badge-danger bg-danger text-white p-2">' .
+                            $bgclass = ($rateint >= 40) ? 'bg-warning' : 'bg-danger';
+                            $statusbadge = '<span class="badge badge-danger bg-danger text-white p-2"><i class="fa fa-times-circle mr-1"></i> ' .
                                 get_string('competencytable_failed', 'quizaccess_failgrade') . '</span>';
                         }
 
+                        $progressbar = '<div class="progress" style="height: 18px; min-width: 120px; margin-bottom: 0;">' .
+                            '<div class="progress-bar ' . $bgclass . '" role="progressbar" style="width: ' . $rateint . '%" ' .
+                            'aria-valuenow="' . $rateint . '" aria-valuemin="0" aria-valuemax="100">' . $rateint . '%</div>' .
+                            '</div>';
+
                         $tablehtml .= '<tr>';
                         $tablehtml .= '<td><strong>' . s($competency->get('shortname')) . '</strong></td>';
-                        $tablehtml .= '<td>' . $thresholdval . '</td>';
-                        $tablehtml .= '<td>' . $rateval . '</td>';
+                        $tablehtml .= '<td><span class="badge badge-secondary bg-secondary text-white p-2">' . $thresholdval . '</span></td>';
+                        $tablehtml .= '<td>' . $progressbar . '</td>';
                         $tablehtml .= '<td>' . $statusbadge . '</td>';
                         $tablehtml .= '</tr>';
                     }
@@ -324,7 +330,31 @@ class quizaccess_failgrade extends quiz_access_rule_base {
 
         $mode = isset($this->quiz->failgradeenabled) ? (int) $this->quiz->failgradeenabled : 1;
 
-        if ($mode == 2 && \core_competency\api::is_enabled()) {
+        $passedgrade = false;
+        $passedcompetencies = false;
+
+        // Check grade pass status (required for modes 1 and 3).
+        if ($mode == 1 || $mode == 3) {
+            $item = \grade_item::fetch([
+                'courseid' => $this->quizobj->get_courseid(),
+                'itemtype' => 'mod',
+                'itemmodule' => 'quiz',
+                'iteminstance' => $this->quizobj->get_quizid(),
+                'outcomeid' => null,
+            ]);
+
+            if ($item) {
+                $grades = \grade_grade::fetch_users_grades($item, [$userid], false);
+                $grade = $grades[$userid];
+
+                if (!empty($grade)) {
+                    $passedgrade = (bool) $grade->is_passed($item);
+                }
+            }
+        }
+
+        // Check competency status (required for modes 2 and 3).
+        if (($mode == 2 || $mode == 3) && \core_competency\api::is_enabled()) {
             $cmid = $this->quizobj->get_cmid();
             $cmcompetencies = \core_competency\api::list_course_module_competencies($cmid);
             $totalcompetencies = count($cmcompetencies);
@@ -349,28 +379,17 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                 }
 
                 if ($achievedcompetencies == $totalcompetencies) {
-                    return $this->isfinishedcache[$userid] = true;
+                    $passedcompetencies = true;
                 }
-                return $this->isfinishedcache[$userid] = false;
             }
         }
 
-        // Grade Mode (mode 1) or fallback.
-        $item = \grade_item::fetch([
-            'courseid' => $this->quizobj->get_courseid(),
-            'itemtype' => 'mod',
-            'itemmodule' => 'quiz',
-            'iteminstance' => $this->quizobj->get_quizid(),
-            'outcomeid' => null,
-        ]);
-
-        if ($item) {
-            $grades = \grade_grade::fetch_users_grades($item, [$userid], false);
-            $grade = $grades[$userid];
-
-            if (!empty($grade)) {
-                return $this->isfinishedcache[$userid] = $grade->is_passed($item);
-            }
+        if ($mode == 1) {
+            return $this->isfinishedcache[$userid] = $passedgrade;
+        } else if ($mode == 2) {
+            return $this->isfinishedcache[$userid] = $passedcompetencies;
+        } else if ($mode == 3) {
+            return $this->isfinishedcache[$userid] = ($passedgrade && $passedcompetencies);
         }
 
         return $this->isfinishedcache[$userid] = false;
@@ -391,6 +410,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
             0 => get_string('failgrademode_disabled', 'quizaccess_failgrade'),
             1 => get_string('failgrademode_grade', 'quizaccess_failgrade'),
             2 => get_string('failgrademode_competency', 'quizaccess_failgrade'),
+            3 => get_string('failgrademode_combined', 'quizaccess_failgrade'),
         ];
 
         $mform->addElement(
@@ -410,7 +430,10 @@ class quizaccess_failgrade extends quiz_access_rule_base {
         $mform->setType('competencythreshold', PARAM_INT);
         $mform->setDefault('competencythreshold', 0);
         $mform->addHelpButton('competencythreshold', 'competencythreshold', 'quizaccess_failgrade');
-        $mform->hideIf('competencythreshold', 'failgradeenabled', 'neq', 2);
+        
+        // Hide if equal to disabled (0) or equal to grade mode (1) - so it is shown for competency (2) and combined (3).
+        $mform->hideIf('competencythreshold', 'failgradeenabled', 'eq', 0);
+        $mform->hideIf('competencythreshold', 'failgradeenabled', 'eq', 1);
     }
 
     /**

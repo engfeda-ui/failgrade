@@ -39,6 +39,8 @@ $string['preventmoreattempts'] = 'You have already passed this quiz, and may not
 $string['failgrademode_disabled']   = 'No (Disabled)';
 $string['failgrademode_grade']      = 'Yes (Rely on passing grade)';
 $string['failgrademode_competency'] = 'Yes (Rely on competencies)';
+$string['failgrademode_combined'] = 'Yes (Rely on BOTH passing grade and competencies)';
+
 
 // Student-facing messages.
 $string['listseparator'] = ', ';

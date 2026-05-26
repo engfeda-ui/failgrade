@@ -4,7 +4,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3-blue.svg?style=flat-square)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20MySQL%20%7C%20MariaDB-purple.svg?style=flat-square)](https://docs.moodle.org)
 [![License](https://img.shields.io/badge/License-GPL%20v3-green.svg?style=flat-square)](http://www.gnu.org/copyleft/gpl.html)
-[![Version](https://img.shields.io/badge/Version-v2.1.2-blue.svg?style=flat-square)](https://github.com)
+[![Version](https://img.shields.io/badge/Version-v2.2.0-blue.svg?style=flat-square)](https://github.com)
 
 An essential Moodle quiz access rule plugin designed to enforce mastery-based learning. This plugin prevents students from starting new quiz attempts once they have proven their competency, encouraging them to focus on other areas once mastery is achieved.
 
@@ -33,7 +33,7 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 | **Moodle Framework** | Moodle 4.0 to 5.0+ |
 | **PHP Runtime** | PHP 8.1, PHP 8.2, PHP 8.3 |
 | **Database System** | PostgreSQL 13+, MySQL 8.0+, or MariaDB 10.5+ |
-| **Required Plugin** | [**`qbank_competency`**](https://github.com/engfeda-ui/moodle-qbank_competency) ≥ 2026052003 (for competency mode) |
+| **Required Plugin** | [**`qbank_competency`**](https://github.com/engfeda-ui/moodle-qbank_competency) ≥ 2026052500 (for competency mode) |
 
 ---
 
@@ -72,6 +72,11 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 ---
 
 ## 📋 Changelog
+
+### v2.2.0 — 2026-05-25
+- **New:** Combined Locking Mode (Mode 3) — teachers can now restrict student quiz attempts based on achieving BOTH the passing grade AND mastering all mapped competencies.
+- **New:** High-Fidelity Interactive Progress Dashboard — replaced the basic competency text layout on the quiz page with beautiful Boost-compatible Bootstrap progress bars (green, orange, red) and dynamic FontAwesome status badges.
+- **Dependency Sync:** Updated `qbank_competency` dependency to `2026052500` for ecosystem compatibility.
 
 ### v2.1.2 — 2026-05-19
 - **New:** `qbank_competency` formally declared as a plugin dependency in `version.php`. Moodle will now refuse to install `quizaccess_failgrade` if `qbank_competency` is not present.
