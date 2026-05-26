@@ -174,11 +174,13 @@ class quizaccess_failgrade extends quiz_access_rule_base {
 
                         if ($rateint >= $threshold) {
                             $bgclass = 'bg-success';
-                            $statusbadge = '<span class="badge badge-success bg-success text-white p-2"><i class="fa fa-check-circle mr-1"></i> ' .
+                            $statusbadge = '<span class="badge badge-success bg-success text-white p-2">' .
+                                '<i class="fa fa-check-circle mr-1"></i> ' .
                                 get_string('competencytable_passed', 'quizaccess_failgrade') . '</span>';
                         } else {
                             $bgclass = ($rateint >= 40) ? 'bg-warning' : 'bg-danger';
-                            $statusbadge = '<span class="badge badge-danger bg-danger text-white p-2"><i class="fa fa-times-circle mr-1"></i> ' .
+                            $statusbadge = '<span class="badge badge-danger bg-danger text-white p-2">' .
+                                '<i class="fa fa-times-circle mr-1"></i> ' .
                                 get_string('competencytable_failed', 'quizaccess_failgrade') . '</span>';
                         }
 
@@ -189,7 +191,8 @@ class quizaccess_failgrade extends quiz_access_rule_base {
 
                         $tablehtml .= '<tr>';
                         $tablehtml .= '<td><strong>' . s($competency->get('shortname')) . '</strong></td>';
-                        $tablehtml .= '<td><span class="badge badge-secondary bg-secondary text-white p-2">' . $thresholdval . '</span></td>';
+                        $tablehtml .= '<td><span class="badge badge-secondary bg-secondary text-white p-2">' .
+                            $thresholdval . '</span></td>';
                         $tablehtml .= '<td>' . $progressbar . '</td>';
                         $tablehtml .= '<td>' . $statusbadge . '</td>';
                         $tablehtml .= '</tr>';
@@ -430,7 +433,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
         $mform->setType('competencythreshold', PARAM_INT);
         $mform->setDefault('competencythreshold', 0);
         $mform->addHelpButton('competencythreshold', 'competencythreshold', 'quizaccess_failgrade');
-        
+
         // Hide if equal to disabled (0) or equal to grade mode (1) - so it is shown for competency (2) and combined (3).
         $mform->hideIf('competencythreshold', 'failgradeenabled', 'eq', 0);
         $mform->hideIf('competencythreshold', 'failgradeenabled', 'eq', 1);
