@@ -36,8 +36,8 @@ $string['failgradedescription'] = 'Attempts available until reaching passing gra
 $string['preventmoreattempts'] = 'You have already passed this quiz, and may not make further attempts.';
 
 // Settings options.
-$string['failgrademode_disabled']   = 'No (Disabled)';
-$string['failgrademode_grade']      = 'Yes (Rely on passing grade)';
+$string['failgrademode_disabled'] = 'No (Disabled)';
+$string['failgrademode_grade'] = 'Yes (Rely on passing grade)';
 $string['failgrademode_competency'] = 'Yes (Rely on competencies)';
 $string['failgrademode_combined'] = 'Yes (Rely on BOTH passing grade and competencies)';
 
@@ -45,7 +45,7 @@ $string['failgrademode_combined'] = 'Yes (Rely on BOTH passing grade and compete
 // Student-facing messages.
 $string['listseparator'] = ', ';
 $string['missingcompetencies'] = 'Sorry, you have not yet mastered all the required technical competencies to complete this quiz successfully. The competencies that still need improvement are: <br><strong>{$a}</strong>';
-$string['allcompetenciesmet']  = 'Congratulations! You have successfully mastered all the required competencies for this quiz.';
+$string['allcompetenciesmet'] = 'Congratulations! You have successfully mastered all the required competencies for this quiz.';
 $string['eventattemptblocked'] = 'Quiz attempt blocked by failgrade rule';
 $string['competencythreshold'] = 'Competency success threshold (%)';
 $string['competencythreshold_help'] = 'Specify the minimum percentage rate required for each competency in this quiz to achieve mastery (0 to 100). If set to 0, the global success threshold defined in the competency report settings will be used instead.';

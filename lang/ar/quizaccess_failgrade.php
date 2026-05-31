@@ -35,14 +35,14 @@ $string['failgradedescription'] = 'المحاولات متاحة حتى الوص
 $string['preventmoreattempts'] = 'لقد اجتزت هذا الاختبار بنجاح، ولا يمكنك القيام بمحاولات إضافية.';
 
 // Settings options.
-$string['failgrademode_disabled']   = 'لا (معطل)';
-$string['failgrademode_grade']      = 'نعم (الاعتماد على درجة النجاح)';
+$string['failgrademode_disabled'] = 'لا (معطل)';
+$string['failgrademode_grade'] = 'نعم (الاعتماد على درجة النجاح)';
 $string['failgrademode_competency'] = 'نعم (الاعتماد على الجدارات)';
 
 // Student-facing messages.
 $string['listseparator'] = '، ';
 $string['missingcompetencies'] = 'عفواً، لم تتقن بعد كافة الجدارات الفنية المطلوبة لإنهاء الاختبار بنجاح. الجدارات التي تحتاج إلى تحسين وإتقان في المحاولة القادمة هي: <br><strong>{$a}</strong>';
-$string['allcompetenciesmet']  = 'تهانينا! لقد أتقنت كافة الجدارات الفنية المربوطة بهذا الاختبار بنجاح.';
+$string['allcompetenciesmet'] = 'تهانينا! لقد أتقنت كافة الجدارات الفنية المربوطة بهذا الاختبار بنجاح.';
 $string['competencythreshold'] = 'حد نجاح الجدارات (%)';
 $string['competencythreshold_help'] = 'حدد النسبة المئوية الدنيا المطلوبة لكل جدارة في هذا الاختبار للوصول لمرحلة الإتقان (من 0 إلى 100). القيمة 0 تعني استخدام حد النجاح العام المضبوط في إعدادات الموقع.';
 $string['competencyprogress'] = '{$a->name} (تم تحقيق {$a->rate}%، المطلوب {$a->threshold}%)';

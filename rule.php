@@ -50,7 +50,8 @@ if (class_exists('\mod_quiz\local\access_rule_base')) {
  * @copyright  based on work by 2026 quizaccess_failgrade contributors
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class quizaccess_failgrade extends quiz_access_rule_base {
+class quizaccess_failgrade extends quiz_access_rule_base
+{
     /** @var array Cache for is_finished calculations */
     protected $isfinishedcache = [];
 
@@ -66,7 +67,8 @@ class quizaccess_failgrade extends quiz_access_rule_base {
      * time limits by the mod/quiz:ignoretimelimits capability.
      * @return quiz_access_rule_base|null the rule, if applicable, else null.
      */
-    public static function make(quiz $quizobj, $timenow, $canignoretimelimits) {
+    public static function make(quiz $quizobj, $timenow, $canignoretimelimits)
+    {
         if (empty($quizobj->get_quiz()->failgradeenabled)) {
             return null;
         }
@@ -81,7 +83,8 @@ class quizaccess_failgrade extends quiz_access_rule_base {
      * @return string|false false if access should be allowed, a message explaining the
      * reason if access should be prevented.
      */
-    public function prevent_new_attempt($numprevattempts, $lastattempt) {
+    public function prevent_new_attempt($numprevattempts, $lastattempt)
+    {
         if ($this->is_finished($numprevattempts, $lastattempt)) {
             // Trigger an event to log this block.
             $event = \quizaccess_failgrade\event\attempt_blocked_by_failgrade::create([
@@ -106,7 +109,8 @@ class quizaccess_failgrade extends quiz_access_rule_base {
      * @return mixed a message, or array of messages, explaining the restriction
      * (may be '' if no message is appropriate).
      */
-    public function description() {
+    public function description()
+    {
         global $USER;
 
         if ($this->descriptioncache !== null) {
@@ -169,7 +173,7 @@ class quizaccess_failgrade extends quiz_access_rule_base {
                         $rate = $this->get_user_competency_rate($userid, $competencyid);
                         $competency = new \core_competency\competency($competencyid);
 
-                        $rateint = ($rate !== null) ? (int)$rate : 0;
+                        $rateint = ($rate !== null) ? (int) $rate : 0;
                         $thresholdval = $threshold . '%';
 
                         if ($rateint >= $threshold) {
@@ -248,7 +252,8 @@ class quizaccess_failgrade extends quiz_access_rule_base {
      * @param mixed $cmcomp A single entry from core_competency\api::list_course_module_competencies().
      * @return int|null The competency ID, or null if it cannot be resolved.
      */
-    protected function extract_competency_id($cmcomp) {
+    protected function extract_competency_id($cmcomp)
+    {
         if (is_array($cmcomp)) {
             if (isset($cmcomp['competencyid'])) {
                 return (int) $cmcomp['competencyid'];
@@ -280,7 +285,8 @@ class quizaccess_failgrade extends quiz_access_rule_base {
      * @param int $competencyid
      * @return float|null
      */
-    protected function get_user_competency_rate($userid, $competencyid) {
+    protected function get_user_competency_rate($userid, $competencyid)
+    {
         global $DB;
         $sql = "SELECT CAST(SUM(qa.maxfraction) AS DECIMAL(12,1)) AS questions,
                        CAST(SUM(qas.fraction) AS DECIMAL(12,1)) AS correct
@@ -318,7 +324,8 @@ class quizaccess_failgrade extends quiz_access_rule_base {
      * @return bool true if this rule means that this user will never be allowed another
      * attempt at this quiz.
      */
-    public function is_finished($numprevattempts, $lastattempt) {
+    public function is_finished($numprevattempts, $lastattempt)
+    {
         global $USER;
 
         if ($numprevattempts === 0) {
@@ -445,7 +452,8 @@ class quizaccess_failgrade extends quiz_access_rule_base {
      * @param object $quiz the data from the quiz form, including $quiz->id
      * which is the id of the quiz being saved.
      */
-    public static function save_settings($quiz) {
+    public static function save_settings($quiz)
+    {
         global $DB;
 
         if (empty($quiz->failgradeenabled) || $quiz->failgradeenabled == 0) {
@@ -474,7 +482,8 @@ class quizaccess_failgrade extends quiz_access_rule_base {
      * which is the id of the quiz being deleted.
      * @since Moodle 2.7.1, 2.6.4, 2.5.7
      */
-    public static function delete_settings($quiz) {
+    public static function delete_settings($quiz)
+    {
         global $DB;
 
         $DB->delete_records('quizaccess_failgrade', ['quizid' => $quiz->id]);
@@ -489,7 +498,8 @@ class quizaccess_failgrade extends quiz_access_rule_base {
      * can also be accessed as quiz.id in the SQL. (quiz is a table alisas for {quiz}.)
      * @return array with three elements:
      */
-    public static function get_settings_sql($quizid) {
+    public static function get_settings_sql($quizid)
+    {
         return [
             'failgradeenabled, competencythreshold',
             'LEFT JOIN {quizaccess_failgrade} failgrade ON failgrade.quizid = quiz.id',
