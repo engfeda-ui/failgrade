@@ -32,10 +32,10 @@ require_once($CFG->libdir . '/gradelib.php');
 // This work-around is required until Moodle 4.2 is the lowest version we support.
 if (class_exists('\mod_quiz\local\access_rule_base')) {
     // Use aliases at class_loader level to maintain compatibility, but check first to prevent warnings on multiple loads.
-    if (!class_exists('quiz_access_rule_base')) {
+    if (!class_exists('quiz_access_rule_base', false)) {
         \class_alias('\mod_quiz\local\access_rule_base', 'quiz_access_rule_base');
     }
-    if (!class_exists('quiz')) {
+    if (!class_exists('quiz', false)) {
         \class_alias('\mod_quiz\quiz_settings', 'quiz');
     }
 } else {
