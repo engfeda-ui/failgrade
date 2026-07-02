@@ -53,3 +53,4 @@ $string['competencytable_achieved'] = 'نسبتك الحالية';
 $string['competencytable_status'] = 'الحالة';
 $string['competencytable_passed'] = 'مكتملة (تم الاجتياز)';
 $string['competencytable_failed'] = 'تحتاج تحسين (لم تجتز)';
+$string['noattempts'] = 'لا توجد محاولات بعد';

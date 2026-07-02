@@ -57,3 +57,4 @@ $string['competencytable_achieved'] = 'Your Score';
 $string['competencytable_status'] = 'Status';
 $string['competencytable_passed'] = 'Passed';
 $string['competencytable_failed'] = 'Needs Improvement';
+$string['noattempts'] = 'No attempts yet';

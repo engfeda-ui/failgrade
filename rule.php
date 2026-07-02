@@ -189,10 +189,14 @@ class quizaccess_failgrade extends quiz_access_rule_base
                                 get_string('competencytable_failed', 'quizaccess_failgrade') . '</span>';
                         }
 
-                        $progressbar = '<div class="progress" style="height: 18px; min-width: 120px; margin-bottom: 0;">' .
-                            '<div class="progress-bar ' . $bgclass . '" role="progressbar" style="width: ' . $rateint . '%" ' .
-                            'aria-valuenow="' . $rateint . '" aria-valuemin="0" aria-valuemax="100">' . $rateint . '%</div>' .
-                            '</div>';
+                        if ($rate === null) {
+                            $progressbar = '<span class="text-muted small"><em>' . get_string('noattempts', 'quizaccess_failgrade') . '</em></span>';
+                        } else {
+                            $progressbar = '<div class="progress" style="height: 18px; min-width: 120px; margin-bottom: 0;">' .
+                                '<div class="progress-bar ' . $bgclass . '" role="progressbar" style="width: ' . $rateint . '%" ' .
+                                'aria-valuenow="' . $rateint . '" aria-valuemin="0" aria-valuemax="100">' . $rateint . '%</div>' .
+                                '</div>';
+                        }
 
                         $tablehtml .= '<tr>';
                         $tablehtml .= '<td><strong>' . s($competency->get('shortname')) . '</strong></td>';
@@ -212,6 +216,13 @@ class quizaccess_failgrade extends quiz_access_rule_base
                     $separator = get_string('listseparator', 'quizaccess_failgrade');
                     $namesstring = implode($separator, $missingcompetencies);
                     $message = get_string('missingcompetencies', 'quizaccess_failgrade', $namesstring);
+
+                    if (has_capability('mod/quiz:preview', $this->quizobj->get_context())) {
+                        return $this->descriptioncache = [
+                            $tablehtml,
+                        ];
+                    }
+
                     return $this->descriptioncache = [
                         '<div class="alert alert-warning" role="alert">' .
                         '<i class="fa fa-exclamation-triangle"></i> ' . $message . '</div>',
