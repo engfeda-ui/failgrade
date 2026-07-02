@@ -289,15 +289,20 @@ class quizaccess_failgrade extends quiz_access_rule_base
         return isset($cmcomp->competencyid) ? (int) $cmcomp->competencyid : null;
     }
 
-    /**
-     * Calculate user competency rate based on attempts for this specific quiz.
-     *
-     * @param int $userid
-     * @param int $competencyid
-     * @return float|null
-     */
     protected function get_user_competency_rate($userid, $competencyid) {
         global $DB;
+        $courseid = $this->quizobj->get_courseid();
+
+        // 1. Try to use the overall course competency report calculator if available.
+        if (class_exists('\local_competency_report\competency_calculator')) {
+            $calculator = new \local_competency_report\competency_calculator($courseid);
+            $scores = $calculator->get_student_scores($userid, $competencyid);
+            if (isset($scores[$competencyid])) {
+                return (float)$scores[$competencyid]['percent'];
+            }
+        }
+
+        // 2. Fallback: Calculate user competency rate based on attempts for this specific quiz.
         $sql = "SELECT CAST(SUM(qa.maxfraction) AS DECIMAL(12,1)) AS questions,
                        CAST(SUM(qas.fraction) AS DECIMAL(12,1)) AS correct
                   FROM {quiz_attempts} quiza
