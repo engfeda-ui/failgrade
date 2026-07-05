@@ -190,7 +190,8 @@ class quizaccess_failgrade extends quiz_access_rule_base
                         }
 
                         if ($rate === null) {
-                            $progressbar = '<span class="text-muted small"><em>' . get_string('noattempts', 'quizaccess_failgrade') . '</em></span>';
+                            $progressbar = '<span class="text-muted small"><em>' .
+                                get_string('noattempts', 'quizaccess_failgrade') . '</em></span>';
                         } else {
                             $progressbar = '<div class="progress" style="height: 18px; min-width: 120px; margin-bottom: 0;">' .
                                 '<div class="progress-bar ' . $bgclass . '" role="progressbar" style="width: ' . $rateint . '%" ' .
@@ -289,6 +290,13 @@ class quizaccess_failgrade extends quiz_access_rule_base
         return isset($cmcomp->competencyid) ? (int) $cmcomp->competencyid : null;
     }
 
+    /**
+     * Get the user's competency rate.
+     *
+     * @param int $userid The user ID.
+     * @param int $competencyid The competency ID.
+     * @return float|null The competency rate, or null if no attempts exist.
+     */
     protected function get_user_competency_rate($userid, $competencyid) {
         global $DB;
         $courseid = $this->quizobj->get_courseid();
