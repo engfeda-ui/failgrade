@@ -54,3 +54,5 @@ $string['competencytable_status'] = 'الحالة';
 $string['competencytable_passed'] = 'مكتملة (تم الاجتياز)';
 $string['competencytable_failed'] = 'تحتاج تحسين (لم تجتز)';
 $string['noattempts'] = 'لا توجد محاولات بعد';
+$string['eventattemptblocked'] = 'تم حجب محاولة الاختبار بواسطة قاعدة تقييد الدرجة';
+$string['failgrademode_combined'] = 'نعم (الاعتماد على درجة النجاح والجدارات معاً)';
