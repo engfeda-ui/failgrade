@@ -15,13 +15,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Implementation of the quizaccess_failgrade_ext_ext plugin.
+ * Implementation of the quizaccess_failgrade_ext plugin.
  *
- * @package    quizaccess_failgrade_ext_ext
+ * @package    quizaccess_failgrade_ext
  * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
  * @copyright  2026 Mahmoud Salem
- * @copyright  based on work by 2026 quizaccess_failgrade_ext_ext contributors
+ * @copyright  based on work by 2026 quizaccess_failgrade_ext contributors
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -47,14 +47,14 @@ if (class_exists('\mod_quiz\local\access_rule_base')) {
  * reaching the quiz passing grade (mode 1) or by achieving proficiency in all
  * competencies linked to the quiz course-module (mode 2).
  *
- * @package    quizaccess_failgrade_ext_ext
+ * @package    quizaccess_failgrade_ext
  * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
  * @copyright  2026 Mahmoud Salem
- * @copyright  based on work by 2026 quizaccess_failgrade_ext_ext contributors
+ * @copyright  based on work by 2026 quizaccess_failgrade_ext contributors
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class quizaccess_failgrade_ext_ext extends quiz_access_rule_base
+class quizaccess_failgrade_ext extends quiz_access_rule_base
 {
     /** @var array Cache for is_finished calculations */
     protected $isfinishedcache = [];
@@ -89,7 +89,7 @@ class quizaccess_failgrade_ext_ext extends quiz_access_rule_base
     public function prevent_new_attempt($numprevattempts, $lastattempt) {
         if ($this->is_finished($numprevattempts, $lastattempt)) {
             // Trigger an event to log this block.
-            $event = \quizaccess_failgrade_ext_ext\event\attempt_blocked_by_failgrade::create([
+            $event = \quizaccess_failgrade_ext\event\attempt_blocked_by_failgrade::create([
                 'context' => \context_module::instance($this->quizobj->get_cmid()),
                 'objectid' => $this->quizobj->get_quizid(),
                 'other' => [
@@ -98,7 +98,7 @@ class quizaccess_failgrade_ext_ext extends quiz_access_rule_base
             ]);
             $event->trigger();
 
-            return get_string('preventmoreattempts', 'quizaccess_failgrade_ext_ext');
+            return get_string('preventmoreattempts', 'quizaccess_failgrade_ext');
         }
 
         return false;
@@ -144,7 +144,7 @@ class quizaccess_failgrade_ext_ext extends quiz_access_rule_base
                     if (!$isproficient) {
                         $competency = new \core_competency\competency($competencyid);
                         $rateval = ($rate !== null) ? sprintf('%.1f', $rate) : '0.0';
-                        $missingcompetencies[] = get_string('competencyprogress', 'quizaccess_failgrade_ext_ext', [
+                        $missingcompetencies[] = get_string('competencyprogress', 'quizaccess_failgrade_ext', [
                             'name' => $competency->get('shortname'),
                             'rate' => $rateval,
                             'threshold' => $threshold,
@@ -156,14 +156,14 @@ class quizaccess_failgrade_ext_ext extends quiz_access_rule_base
                 $tablehtml = '';
                 if (has_capability('mod/quiz:attempt', $this->quizobj->get_context())) {
                     $tablehtml .= '<div class="competency-results-table mt-4">';
-                    $tablehtml .= '<h3>' . get_string('competencytable_heading', 'quizaccess_failgrade_ext_ext') . '</h3>';
+                    $tablehtml .= '<h3>' . get_string('competencytable_heading', 'quizaccess_failgrade_ext') . '</h3>';
                     $tablehtml .= '<table class="table table-striped table-bordered table-hover mt-2 align-middle">';
                     $tablehtml .= '<thead>';
                     $tablehtml .= '<tr>';
-                    $tablehtml .= '<th>' . get_string('competencytable_comp', 'quizaccess_failgrade_ext_ext') . '</th>';
-                    $tablehtml .= '<th>' . get_string('competencytable_required', 'quizaccess_failgrade_ext_ext') . '</th>';
-                    $tablehtml .= '<th>' . get_string('competencytable_achieved', 'quizaccess_failgrade_ext_ext') . '</th>';
-                    $tablehtml .= '<th>' . get_string('competencytable_status', 'quizaccess_failgrade_ext_ext') . '</th>';
+                    $tablehtml .= '<th>' . get_string('competencytable_comp', 'quizaccess_failgrade_ext') . '</th>';
+                    $tablehtml .= '<th>' . get_string('competencytable_required', 'quizaccess_failgrade_ext') . '</th>';
+                    $tablehtml .= '<th>' . get_string('competencytable_achieved', 'quizaccess_failgrade_ext') . '</th>';
+                    $tablehtml .= '<th>' . get_string('competencytable_status', 'quizaccess_failgrade_ext') . '</th>';
                     $tablehtml .= '</tr>';
                     $tablehtml .= '</thead>';
                     $tablehtml .= '<tbody>';
@@ -181,17 +181,17 @@ class quizaccess_failgrade_ext_ext extends quiz_access_rule_base
                             $bgclass = 'bg-success';
                             $statusbadge = '<span class="badge badge-success bg-success text-white p-2">' .
                                 '<i class="fa fa-check-circle mr-1"></i> ' .
-                                get_string('competencytable_passed', 'quizaccess_failgrade_ext_ext') . '</span>';
+                                get_string('competencytable_passed', 'quizaccess_failgrade_ext') . '</span>';
                         } else {
                             $bgclass = ($rateint >= 40) ? 'bg-warning' : 'bg-danger';
                             $statusbadge = '<span class="badge badge-danger bg-danger text-white p-2">' .
                                 '<i class="fa fa-times-circle mr-1"></i> ' .
-                                get_string('competencytable_failed', 'quizaccess_failgrade_ext_ext') . '</span>';
+                                get_string('competencytable_failed', 'quizaccess_failgrade_ext') . '</span>';
                         }
 
                         if ($rate === null) {
                             $progressbar = '<span class="text-muted small"><em>' .
-                                get_string('noattempts', 'quizaccess_failgrade_ext_ext') . '</em></span>';
+                                get_string('noattempts', 'quizaccess_failgrade_ext') . '</em></span>';
                         } else {
                             $progressbar = '<div class="progress" style="height: 18px; min-width: 120px; margin-bottom: 0;">' .
                                 '<div class="progress-bar ' . $bgclass . '" role="progressbar" style="width: ' . $rateint . '%" ' .
@@ -214,9 +214,9 @@ class quizaccess_failgrade_ext_ext extends quiz_access_rule_base
                 }
 
                 if (!empty($missingcompetencies)) {
-                    $separator = get_string('listseparator', 'quizaccess_failgrade_ext_ext');
+                    $separator = get_string('listseparator', 'quizaccess_failgrade_ext');
                     $namesstring = implode($separator, $missingcompetencies);
-                    $message = get_string('missingcompetencies', 'quizaccess_failgrade_ext_ext', $namesstring);
+                    $message = get_string('missingcompetencies', 'quizaccess_failgrade_ext', $namesstring);
 
                     if (has_capability('mod/quiz:preview', $this->quizobj->get_context())) {
                         return $this->descriptioncache = [
@@ -235,7 +235,7 @@ class quizaccess_failgrade_ext_ext extends quiz_access_rule_base
                 // Doing this check last saves DB queries for students who are missing competencies.
                 $attempts = quiz_get_user_attempts($this->quizobj->get_quizid(), $userid, 'finished', true);
                 if (!empty($attempts)) {
-                    $successmessage = get_string('allcompetenciesmet', 'quizaccess_failgrade_ext_ext');
+                    $successmessage = get_string('allcompetenciesmet', 'quizaccess_failgrade_ext');
                     return $this->descriptioncache = [
                         '<div class="alert alert-success" role="alert">' .
                         '<i class="fa fa-check-circle"></i> ' . $successmessage . '</div>',
@@ -245,14 +245,14 @@ class quizaccess_failgrade_ext_ext extends quiz_access_rule_base
 
                 // Has competencies but no attempts yet — show the generic description.
                 return $this->descriptioncache = [
-                    get_string('failgradedescription', 'quizaccess_failgrade_ext_ext'),
+                    get_string('failgradedescription', 'quizaccess_failgrade_ext'),
                     $tablehtml,
                 ];
             }
         }
 
         // Fallback: Grade mode, or competency mode with no linked competencies.
-        return $this->descriptioncache = [get_string('failgradedescription', 'quizaccess_failgrade_ext_ext')];
+        return $this->descriptioncache = [get_string('failgradedescription', 'quizaccess_failgrade_ext')];
     }
 
     /**
@@ -439,29 +439,29 @@ class quizaccess_failgrade_ext_ext extends quiz_access_rule_base
         \MoodleQuickForm $mform
     ) {
         $options = [
-            0 => get_string('failgrademode_disabled', 'quizaccess_failgrade_ext_ext'),
-            1 => get_string('failgrademode_grade', 'quizaccess_failgrade_ext_ext'),
-            2 => get_string('failgrademode_competency', 'quizaccess_failgrade_ext_ext'),
-            3 => get_string('failgrademode_combined', 'quizaccess_failgrade_ext_ext'),
+            0 => get_string('failgrademode_disabled', 'quizaccess_failgrade_ext'),
+            1 => get_string('failgrademode_grade', 'quizaccess_failgrade_ext'),
+            2 => get_string('failgrademode_competency', 'quizaccess_failgrade_ext'),
+            3 => get_string('failgrademode_combined', 'quizaccess_failgrade_ext'),
         ];
 
         $mform->addElement(
             'select',
             'failgradeenabled',
-            get_string('failgradeenabled', 'quizaccess_failgrade_ext_ext'),
+            get_string('failgradeenabled', 'quizaccess_failgrade_ext'),
             $options
         );
-        $mform->addHelpButton('failgradeenabled', 'failgradeenabled', 'quizaccess_failgrade_ext_ext');
+        $mform->addHelpButton('failgradeenabled', 'failgradeenabled', 'quizaccess_failgrade_ext');
 
         $mform->addElement(
             'text',
             'competencythreshold',
-            get_string('competencythreshold', 'quizaccess_failgrade_ext_ext'),
+            get_string('competencythreshold', 'quizaccess_failgrade_ext'),
             ['size' => '3', 'maxlength' => '3']
         );
         $mform->setType('competencythreshold', PARAM_INT);
         $mform->setDefault('competencythreshold', 0);
-        $mform->addHelpButton('competencythreshold', 'competencythreshold', 'quizaccess_failgrade_ext_ext');
+        $mform->addHelpButton('competencythreshold', 'competencythreshold', 'quizaccess_failgrade_ext');
 
         // Hide if equal to disabled (0) or equal to grade mode (1) - so it is shown for competency (2) and combined (3).
         $mform->hideIf('competencythreshold', 'failgradeenabled', 'eq', 0);
@@ -478,20 +478,20 @@ class quizaccess_failgrade_ext_ext extends quiz_access_rule_base
         global $DB;
 
         if (empty($quiz->failgradeenabled) || $quiz->failgradeenabled == 0) {
-            $DB->delete_records('quizaccess_failgrade_ext_ext', ['quizid' => $quiz->id]);
+            $DB->delete_records('quizaccess_failgrade_ext', ['quizid' => $quiz->id]);
         } else {
             $competencythreshold = isset($quiz->competencythreshold) ? (int) $quiz->competencythreshold : 0;
-            if (!$DB->record_exists('quizaccess_failgrade_ext_ext', ['quizid' => $quiz->id])) {
+            if (!$DB->record_exists('quizaccess_failgrade_ext', ['quizid' => $quiz->id])) {
                 $record = new \stdClass();
                 $record->quizid = $quiz->id;
                 $record->failgradeenabled = $quiz->failgradeenabled;
                 $record->competencythreshold = $competencythreshold;
-                $DB->insert_record('quizaccess_failgrade_ext_ext', $record);
+                $DB->insert_record('quizaccess_failgrade_ext', $record);
             } else {
-                $record = $DB->get_record('quizaccess_failgrade_ext_ext', ['quizid' => $quiz->id]);
+                $record = $DB->get_record('quizaccess_failgrade_ext', ['quizid' => $quiz->id]);
                 $record->failgradeenabled = $quiz->failgradeenabled;
                 $record->competencythreshold = $competencythreshold;
-                $DB->update_record('quizaccess_failgrade_ext_ext', $record);
+                $DB->update_record('quizaccess_failgrade_ext', $record);
             }
         }
     }
@@ -506,7 +506,7 @@ class quizaccess_failgrade_ext_ext extends quiz_access_rule_base
     public static function delete_settings($quiz) {
         global $DB;
 
-        $DB->delete_records('quizaccess_failgrade_ext_ext', ['quizid' => $quiz->id]);
+        $DB->delete_records('quizaccess_failgrade_ext', ['quizid' => $quiz->id]);
     }
 
     /**
@@ -521,7 +521,7 @@ class quizaccess_failgrade_ext_ext extends quiz_access_rule_base
     public static function get_settings_sql($quizid) {
         return [
             'failgradeenabled, competencythreshold',
-            'LEFT JOIN {quizaccess_failgrade_ext_ext} failgrade ON failgrade.quizid = quiz.id',
+            'LEFT JOIN {quizaccess_failgrade_ext} failgrade ON failgrade.quizid = quiz.id',
             [],
         ];
     }

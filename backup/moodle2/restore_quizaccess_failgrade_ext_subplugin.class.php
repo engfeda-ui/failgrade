@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Restore code for the quizaccess_failgrade_ext_ext plugin.
+ * Restore code for the quizaccess_failgrade_ext plugin.
  *
- * @package    quizaccess_failgrade_ext_ext
+ * @package    quizaccess_failgrade_ext
  * @copyright  2023 Leon Stringer
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -30,14 +30,14 @@ require_once($CFG->dirroot . '/mod/quiz/backup/moodle2/restore_mod_quiz_access_s
  * Provides the information to restore the failgrade quiz access plugin.
  *
  * If this plugin is required, a single
- * <quizaccess_failgrade_ext_ext><required>1</required></quizaccess_failgrade_ext_ext> tag
+ * <quizaccess_failgrade_ext><required>1</required></quizaccess_failgrade_ext> tag
  * will be in the XML, and this needs to be written to the DB. Otherwise, nothing
  * needs to be written to the DB.
  *
  * @copyright  2023 Leon Stringer
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class restore_quizaccess_failgrade_ext_ext_subplugin extends restore_mod_quiz_access_subplugin {
+class restore_quizaccess_failgrade_ext_subplugin extends restore_mod_quiz_access_subplugin {
     /**
      * Define the quiz subplugin structure.
      *
@@ -47,18 +47,18 @@ class restore_quizaccess_failgrade_ext_ext_subplugin extends restore_mod_quiz_ac
         $paths = [];
 
         $elename = $this->get_namefor('');
-        $elepath = $this->get_pathfor('/quizaccess_failgrade_ext_ext');
+        $elepath = $this->get_pathfor('/quizaccess_failgrade_ext');
         $paths[] = new restore_path_element($elename, $elepath);
 
         return $paths;
     }
 
     /**
-     * Processes the quizaccess_failgrade_ext_ext element, if it is in the file.
+     * Processes the quizaccess_failgrade_ext element, if it is in the file.
      *
      * @param array $data the data read from the XML file.
      */
-    public function process_quizaccess_failgrade_ext_ext($data) {
+    public function process_quizaccess_failgrade_ext($data) {
         global $DB;
 
         $data = (object)$data;
@@ -69,6 +69,6 @@ class restore_quizaccess_failgrade_ext_ext_subplugin extends restore_mod_quiz_ac
             $data->competencythreshold = 0;
         }
 
-        $DB->insert_record('quizaccess_failgrade_ext_ext', $data);
+        $DB->insert_record('quizaccess_failgrade_ext', $data);
     }
 }

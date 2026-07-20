@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Backup code for the quizaccess_failgrade_ext_ext plugin.
+ * Backup code for the quizaccess_failgrade_ext plugin.
  *
- * @package    quizaccess_failgrade_ext_ext
+ * @package    quizaccess_failgrade_ext
  * @copyright  2023 Leon Stringer
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -30,14 +30,14 @@ require_once($CFG->dirroot . '/mod/quiz/backup/moodle2/backup_mod_quiz_access_su
  * Provides the information to backup the failgrade quiz access plugin.
  *
  * If this plugin is requires, a single
- * <quizaccess_failgrade_ext_ext><required>1</required></quizaccess_failgrade_ext_ext> tag
+ * <quizaccess_failgrade_ext><required>1</required></quizaccess_failgrade_ext> tag
  * will be added to the XML in the appropriate place. Otherwise nothing will be
  * added. This matches the DB structure.
  *
  * @copyright  2023 Leon Stringer
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_quizaccess_failgrade_ext_ext_subplugin extends backup_mod_quiz_access_subplugin {
+class backup_quizaccess_failgrade_ext_subplugin extends backup_mod_quiz_access_subplugin {
     /**
      * Define the quiz subplugin structure.
      *
@@ -48,7 +48,7 @@ class backup_quizaccess_failgrade_ext_ext_subplugin extends backup_mod_quiz_acce
         $subplugin = $this->get_subplugin_element();
         $subpluginwrapper = new backup_nested_element($this->get_recommended_name());
         $subplugintablesettings = new backup_nested_element(
-            'quizaccess_failgrade_ext_ext',
+            'quizaccess_failgrade_ext',
             null,
             ['failgradeenabled', 'competencythreshold']
         );
@@ -59,7 +59,7 @@ class backup_quizaccess_failgrade_ext_ext_subplugin extends backup_mod_quiz_acce
 
         // Set source to populate the data.
         $subplugintablesettings->set_source_table(
-            'quizaccess_failgrade_ext_ext',
+            'quizaccess_failgrade_ext',
             ['quizid' => backup::VAR_ACTIVITYID]
         );
 

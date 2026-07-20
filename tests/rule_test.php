@@ -15,18 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests for the quizaccess_failgrade_ext_ext plugin.
+ * Unit tests for the quizaccess_failgrade_ext plugin.
  *
- * @package    quizaccess_failgrade_ext_ext
+ * @package    quizaccess_failgrade_ext
  * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace quizaccess_failgrade_ext_ext;
+namespace quizaccess_failgrade_ext;
 
 use advanced_testcase;
-use quizaccess_failgrade_ext_ext;
+use quizaccess_failgrade_ext;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -41,7 +41,7 @@ if (class_exists('\mod_quiz\local\access_rule_base')) {
 }
 
 /**
- * Unit tests for the quizaccess_failgrade_ext_ext plugin.
+ * Unit tests for the quizaccess_failgrade_ext plugin.
  *
  * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
@@ -85,7 +85,7 @@ class rule_test extends advanced_testcase {
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
-        $rule = quizaccess_failgrade_ext_ext::make($quizobj, 0, false);
+        $rule = quizaccess_failgrade_ext::make($quizobj, 0, false);
         $this->assertNull($rule);
 
         // Test 2.
@@ -101,8 +101,8 @@ class rule_test extends advanced_testcase {
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
-        $rule = quizaccess_failgrade_ext_ext::make($quizobj, 0, false);
-        $this->assertInstanceOf('quizaccess_failgrade_ext_ext', $rule);
+        $rule = quizaccess_failgrade_ext::make($quizobj, 0, false);
+        $this->assertInstanceOf('quizaccess_failgrade_ext', $rule);
         $this->assertFalse($rule->is_finished(0, null));
         $this->assertEmpty($rule->prevent_new_attempt(0, null));
     }
@@ -171,7 +171,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
-        $rule = quizaccess_failgrade_ext_ext::make($quizobj, 0, false);
+        $rule = quizaccess_failgrade_ext::make($quizobj, 0, false);
         $this->assertFalse($rule->is_finished(1, $attempt));
         $this->assertEmpty($rule->prevent_new_attempt(1, $attempt));
 
@@ -186,7 +186,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
-        $rule = quizaccess_failgrade_ext_ext::make($quizobj, 0, false);
+        $rule = quizaccess_failgrade_ext::make($quizobj, 0, false);
         $this->assertTrue($rule->is_finished(2, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(2, $attempt));
 
@@ -201,7 +201,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
-        $rule = quizaccess_failgrade_ext_ext::make($quizobj, 0, false);
+        $rule = quizaccess_failgrade_ext::make($quizobj, 0, false);
         $this->assertTrue($rule->is_finished(3, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(3, $attempt));
     }
@@ -270,7 +270,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
-        $rule = quizaccess_failgrade_ext_ext::make($quizobj, 0, false);
+        $rule = quizaccess_failgrade_ext::make($quizobj, 0, false);
         $this->assertFalse($rule->is_finished(1, $attempt));
         $this->assertEmpty($rule->prevent_new_attempt(1, $attempt));
 
@@ -284,7 +284,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
-        $rule = quizaccess_failgrade_ext_ext::make($quizobj, 0, false);
+        $rule = quizaccess_failgrade_ext::make($quizobj, 0, false);
         $this->assertFalse($rule->is_finished(2, $attempt));
         $this->assertEmpty($rule->prevent_new_attempt(2, $attempt));
 
@@ -328,7 +328,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
-        $rule = quizaccess_failgrade_ext_ext::make($quizobj, 0, false);
+        $rule = quizaccess_failgrade_ext::make($quizobj, 0, false);
         $this->assertTrue($rule->is_finished(1, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(1, $attempt));
     }
@@ -398,7 +398,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
-        $rule = quizaccess_failgrade_ext_ext::make($quizobj, 0, false);
+        $rule = quizaccess_failgrade_ext::make($quizobj, 0, false);
         $this->assertFalse($rule->is_finished(1, $attempt));
         $this->assertEmpty($rule->prevent_new_attempt(1, $attempt));
 
@@ -412,7 +412,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
-        $rule = quizaccess_failgrade_ext_ext::make($quizobj, 0, false);
+        $rule = quizaccess_failgrade_ext::make($quizobj, 0, false);
         $this->assertTrue($rule->is_finished(2, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(2, $attempt));
     }
@@ -480,7 +480,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
-        $rule = quizaccess_failgrade_ext_ext::make($quizobj, 0, false);
+        $rule = quizaccess_failgrade_ext::make($quizobj, 0, false);
         $this->assertFalse($rule->is_finished(1, $attempt));
         $this->assertEmpty($rule->prevent_new_attempt(1, $attempt));
 
@@ -494,7 +494,7 @@ class rule_test extends advanced_testcase {
         $attemptobj->process_submitted_actions($timenow, false, [1 => ['answer' => '3.14'], 2 => ['answer' => '3.14']]);
         $attemptobj->process_finish($timenow, false);
 
-        $rule = quizaccess_failgrade_ext_ext::make($quizobj, 0, false);
+        $rule = quizaccess_failgrade_ext::make($quizobj, 0, false);
         $this->assertTrue($rule->is_finished(2, $attempt));
         $this->assertNotEmpty($rule->prevent_new_attempt(2, $attempt));
     }
@@ -555,7 +555,7 @@ class rule_test extends advanced_testcase {
         $this->setUser($user); // Now switch back to user.
 
         // Setup mock rates: student achieved 50% on both competencies (threshold is 60%).
-        $rule = new class ($quizobj, 0) extends \quizaccess_failgrade_ext_ext {
+        $rule = new class ($quizobj, 0) extends \quizaccess_failgrade_ext {
             /** @var array Mocked rates for competencies. */
             public $mockrates = [];
 
@@ -577,7 +577,7 @@ class rule_test extends advanced_testcase {
             $comp1->get('id') => 50.0,
             $comp2->get('id') => 50.0,
         ];
-        $this->assertInstanceOf('quizaccess_failgrade_ext_ext', $rule);
+        $this->assertInstanceOf('quizaccess_failgrade_ext', $rule);
 
         // Simulate one completed quiz attempt.
         $attempt = (object)['userid' => $user->id];
@@ -642,7 +642,7 @@ class rule_test extends advanced_testcase {
         $this->setUser($user); // Now switch back to user.
 
         // Setup mock rates: student achieved 75% and 80% (both >= 60% threshold).
-        $rule = new class ($quizobj, 0) extends \quizaccess_failgrade_ext_ext {
+        $rule = new class ($quizobj, 0) extends \quizaccess_failgrade_ext {
             /** @var array Mocked rates for competencies. */
             public $mockrates = [];
 
@@ -664,7 +664,7 @@ class rule_test extends advanced_testcase {
             $comp1->get('id') => 75.0,
             $comp2->get('id') => 80.0,
         ];
-        $this->assertInstanceOf('quizaccess_failgrade_ext_ext', $rule);
+        $this->assertInstanceOf('quizaccess_failgrade_ext', $rule);
 
         // Simulate one completed quiz attempt.
         $attempt = (object)['userid' => $user->id];
@@ -696,7 +696,7 @@ class rule_test extends advanced_testcase {
         $quizobj = \quiz::create($quiz->id, $user->id);
 
         // Mode=0 means make() must return null - the rule is not active.
-        $rule = quizaccess_failgrade_ext_ext::make($quizobj, 0, false);
+        $rule = quizaccess_failgrade_ext::make($quizobj, 0, false);
         $this->assertNull($rule);
     }
 }
