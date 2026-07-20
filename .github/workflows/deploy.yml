@@ -7,7 +7,7 @@ on:
       - staging
 
 env:
-  PLUGIN_PATH: mod/quiz/accessrule/failgrade
+  PLUGIN_PATH: mod/quiz/accessrule/failgrade_ext
 
 jobs:
   deploy:
