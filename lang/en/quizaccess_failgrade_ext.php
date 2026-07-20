@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for the quizaccess_failgrade plugin.
+ * Strings for the quizaccess_failgrade_ext_ext plugin.
  *
  * @package quizaccess
  * @subpackage failgrade

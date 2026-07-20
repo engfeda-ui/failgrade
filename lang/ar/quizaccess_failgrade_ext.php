@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Arabic language strings for the quizaccess_failgrade plugin.
+ * Arabic language strings for the quizaccess_failgrade_ext_ext plugin.
  *
- * @package   quizaccess_failgrade
+ * @package   quizaccess_failgrade_ext_ext
  * @copyright  2026 Mahmoud Salem
- * @copyright  based on work by 2026 quizaccess_failgrade contributors
+ * @copyright  based on work by 2026 quizaccess_failgrade_ext_ext contributors
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

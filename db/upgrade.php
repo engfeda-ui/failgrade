@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * quizaccess_failgrade plugin upgrade steps.
+ * quizaccess_failgrade_ext_ext plugin upgrade steps.
  *
- * @package    quizaccess_failgrade
+ * @package    quizaccess_failgrade_ext_ext
  * @copyright  2026 Mahmoud Salem
- * @copyright  based on work by 2026 quizaccess_failgrade contributors
+ * @copyright  based on work by 2026 quizaccess_failgrade_ext_ext contributors
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,7 +29,7 @@
  * @param int $oldversion the version we are upgrading from.
  * @return bool always true.
  */
-function xmldb_quizaccess_failgrade_upgrade($oldversion) {
+function xmldb_quizaccess_failgrade_ext_ext_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager();
@@ -43,8 +43,8 @@ function xmldb_quizaccess_failgrade_upgrade($oldversion) {
     }
 
     if ($oldversion < 2026051901) {
-        // Define field competencythreshold to be added to quizaccess_failgrade.
-        $table = new xmldb_table('quizaccess_failgrade');
+        // Define field competencythreshold to be added to quizaccess_failgrade_ext_ext.
+        $table = new xmldb_table('quizaccess_failgrade_ext_ext');
         $field = new xmldb_field(
             'competencythreshold',
             XMLDB_TYPE_INTEGER,

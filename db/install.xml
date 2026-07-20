@@ -4,7 +4,7 @@
     xsi:noNamespaceSchemaLocation="../../../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="quizaccess_failgrade" COMMENT="Stores the additional setting required by this accessrule">
+    <TABLE NAME="quizaccess_failgrade_ext_ext" COMMENT="Stores the additional setting required by this accessrule">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="quizid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key to quiz.id."/>

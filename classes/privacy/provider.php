@@ -15,18 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy Subsystem implementation for quizaccess_failgrade.
+ * Privacy Subsystem implementation for quizaccess_failgrade_ext_ext.
  *
- * @package quizaccess_failgrade
+ * @package quizaccess_failgrade_ext_ext
  * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace quizaccess_failgrade\privacy;
+namespace quizaccess_failgrade_ext_ext\privacy;
 
 /**
- * Privacy Subsystem implementation for quizaccess_failgrade.
+ * Privacy Subsystem implementation for quizaccess_failgrade_ext_ext.
  *
  * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>

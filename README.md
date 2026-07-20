@@ -1,4 +1,4 @@
-# 🛑 Moodle Quiz Access Rule: Fail Grade (`quizaccess_failgrade`)
+# 🛑 Moodle Quiz Access Rule: Fail Grade (`quizaccess_failgrade_ext`)
 
 [![Moodle Compatibility](https://img.shields.io/badge/Moodle-4.0%20to%205.0%2B-orange.svg?style=flat-square)](https://moodle.org)
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3-blue.svg?style=flat-square)](https://php.net)
@@ -16,8 +16,8 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 
 - **Dual-Mode Mastery Locking:**
   - **Grade-Based Mode:** Restricts students from making additional attempts once they reach or exceed the quiz's **"Grade to pass"**.
-  - **Competency-Based Mode:** Prevents students from starting new attempts once they achieve mastery in all Moodle competencies mapped to the quiz via `qbank_competency`.
-- **Custom Per-Quiz Competency Threshold:** Configure a custom passing percentage (e.g., `60%`) per quiz. If set to `0`, falls back to the global `success_threshold` defined in `local_competency_report` settings.
+  - **Competency-Based Mode:** Prevents students from starting new attempts once they achieve mastery in all Moodle competencies mapped to the quiz via `qbank_comp_ext`.
+- **Custom Per-Quiz Competency Threshold:** Configure a custom passing percentage (e.g., `60%`) per quiz. If set to `0`, falls back to the global `success_threshold` defined in `local_comp_report_ext` settings.
 - **Real-Time Competency Progress Table:** Renders a responsive Bootstrap table on the quiz landing page showing each mapped competency, the required threshold, the student's current score, and a colour-coded status badge (**Passed** / **Needs Improvement**).
 - **Moodle Event Logging:** Fires a `attempt_blocked_by_failgrade` event when a student is blocked, providing a full audit trail in Moodle's log store.
 - **Privacy Subsystem (GDPR):** Full compliance with Moodle's privacy API.
@@ -33,17 +33,17 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 | **Moodle Framework** | Moodle 4.0 to 5.0+ |
 | **PHP Runtime** | PHP 8.1, PHP 8.2, PHP 8.3 |
 | **Database System** | PostgreSQL 13+, MySQL 8.0+, or MariaDB 10.5+ |
-| **Required Plugin** | [**`qbank_competency`**](https://github.com/engfeda-ui/competency) ≥ 2026052500 (for competency mode) |
+| **Required Plugin** | [**`qbank_comp_ext`**](https://github.com/engfeda-ui/competency) ≥ 2026052500 (for competency mode) |
 
 ---
 
 ## 🚀 Installation
 
-1. **Prerequisite (for competency mode):** Install [**`qbank_competency`**](https://github.com/engfeda-ui/competency) first.
+1. **Prerequisite (for competency mode):** Install [**`qbank_comp_ext`**](https://github.com/engfeda-ui/competency) first.
 2. **Download & Extract:** Download the repository and extract the files.
 3. **Directory Placement:** Copy the `failgrade` folder into your Moodle quiz access rules directory:
    ```
-   moodle/mod/quiz/accessrule/failgrade
+   moodle/mod/quiz/accessrule/failgrade_ext
    ```
 4. **Run Moodle Upgrade:** Log in as Administrator and navigate to **Site administration > Notifications**.
 5. **Alternative Install:** Zip the directory and upload via **Site administration > Plugins > Install plugins**.
@@ -63,8 +63,8 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 ### B. Competency-Based Mode
 1. Open a **Quiz** and expand **Extra restrictions on attempts**:
    - Set **"Block extra attempts if passing grade"** → **"Yes (Rely on competencies)"**.
-   - A **"Competency success threshold (%)"** field appears. Enter a value (e.g., `60`) or leave at `0` to use the global threshold from `local_competency_report` settings.
-2. Map competencies to this quiz's questions using `qbank_competency`.
+   - A **"Competency success threshold (%)"** field appears. Enter a value (e.g., `60`) or leave at `0` to use the global threshold from `local_comp_report_ext` settings.
+2. Map competencies to this quiz's questions using `qbank_comp_ext`.
 3. Students can attempt the quiz freely until they achieve the required percentage across all mapped competencies. Once mastered, the attempt button is blocked and a success message is shown.
 
 > **Global threshold:** Configure the default threshold at **Site administration > Plugins > Local plugins > Competency Plugin > Success threshold**.
@@ -80,10 +80,10 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 ### v2.2.0 — 2026-05-25
 - **New:** Combined Locking Mode (Mode 3) — teachers can now restrict student quiz attempts based on achieving BOTH the passing grade AND mastering all mapped competencies.
 - **New:** High-Fidelity Interactive Progress Dashboard — replaced the basic competency text layout on the quiz page with beautiful Boost-compatible Bootstrap progress bars (green, orange, red) and dynamic FontAwesome status badges.
-- **Dependency Sync:** Updated `qbank_competency` dependency to `2026052500` for ecosystem compatibility.
+- **Dependency Sync:** Updated `qbank_comp_ext` dependency to `2026052500` for ecosystem compatibility.
 
 ### v2.1.2 — 2026-05-19
-- **New:** `qbank_competency` formally declared as a plugin dependency in `version.php`. Moodle will now refuse to install `quizaccess_failgrade` if `qbank_competency` is not present.
+- **New:** `qbank_comp_ext` formally declared as a plugin dependency in `version.php`. Moodle will now refuse to install `quizaccess_failgrade_ext` if `qbank_comp_ext` is not present.
 - **Refactor:** Extracted `extract_competency_id($cmcomp)` as a protected helper method in `rule.php`. The ~30-line competency ID extraction block was previously duplicated three times across `description()` and `is_finished()` — now centralised in one place.
 
 ### v2.1.1 — 2026-05-15
@@ -130,8 +130,8 @@ failgrade/
 
 ```mermaid
 graph TD
-    A[qbank_competency] -->|Maps questions to competencies| B[local_competency_report]
-    B -->|Provides global threshold config| E[quizaccess_failgrade]
+    A[qbank_comp_ext] -->|Maps questions to competencies| B[local_comp_report_ext]
+    B -->|Provides global threshold config| E[quizaccess_failgrade_ext]
     A -->|Provides question-competency data| E
     E -->|Blocks attempts after mastery| F[Quiz Attempt Page]
 ```
@@ -145,7 +145,7 @@ graph TD
 php admin/tool/phpunit/cli/init.php
 
 # Run tests for this plugin
-vendor/bin/phpunit --group quizaccess_failgrade
+vendor/bin/phpunit --group quizaccess_failgrade_ext
 ```
 
 ---
@@ -155,7 +155,7 @@ vendor/bin/phpunit --group quizaccess_failgrade
 - **SQL Injection Prevention:** All queries use Moodle's `$DB` API with named parameter bindings.
 - **Input Sanitization:** All input retrieved via `required_param()` / `optional_param()` with strict type filters.
 - **Capability Controls:** Access points enforce `require_login()` and `require_capability()`.
-- **Namespace Compliance:** Event and privacy classes under `\quizaccess_failgrade\` namespace.
+- **Namespace Compliance:** Event and privacy classes under `\quizaccess_failgrade_ext\` namespace.
 - **Coding Standards:** Compliant with Moodle's `PHP_CodeSniffer` (PHPCS) ruleset.
 
 ---

@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
-namespace quizaccess_failgrade\event;
+namespace quizaccess_failgrade_ext_ext\event;
 
 use core\event\base;
 
 /**
  * Event fired when a student is blocked from attempting a quiz because they already passed.
  *
- * @package    quizaccess_failgrade
+ * @package    quizaccess_failgrade_ext_ext
  * @copyright  2026 Mahmoud Salem
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -41,7 +41,7 @@ class attempt_blocked_by_failgrade extends base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventattemptblocked', 'quizaccess_failgrade');
+        return get_string('eventattemptblocked', 'quizaccess_failgrade_ext_ext');
     }
 
     /**
