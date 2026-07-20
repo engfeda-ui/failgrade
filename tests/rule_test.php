@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
-require_once($CFG->dirroot . '/mod/quiz/accessrule/failgrade/rule.php');
+require_once($CFG->dirroot . '/mod/quiz/accessrule/failgrade_ext_ext/rule.php');
 
 // This work-around is required until Moodle 4.2 is the lowest version we support.
 if (class_exists('\mod_quiz\local\access_rule_base')) {
