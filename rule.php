@@ -520,7 +520,7 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
      */
     public static function get_settings_sql($quizid) {
         return [
-            'failgradeenabled, competencythreshold',
+            'failgrade.failgradeenabled AS failgradeenabled, failgrade.competencythreshold AS competencythreshold',
             'LEFT JOIN {quizaccess_failgrade_ext} failgrade ON failgrade.quizid = quiz.id',
             [],
         ];
