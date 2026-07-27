@@ -329,7 +329,7 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
         }
 
         // 2. Fallback: Bulk query rates based on quiz attempts for these competency IDs.
-        list($insql, $inparams) = $DB->get_in_or_equal($competencyids, SQL_PARAMS_NAMED, 'cid');
+        [$insql, $inparams] = $DB->get_in_or_equal($competencyids, SQL_PARAMS_NAMED, 'cid');
         $params = array_merge([
             'quizid' => $this->quizobj->get_quizid(),
             'userid' => $userid,
@@ -375,7 +375,7 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
         if (empty($competencyids)) {
             return [];
         }
-        list($insql, $inparams) = $DB->get_in_or_equal($competencyids, SQL_PARAMS_NAMED, 'cid');
+        [$insql, $inparams] = $DB->get_in_or_equal($competencyids, SQL_PARAMS_NAMED, 'cid');
         $records = $DB->get_records_select('competency', "id {$insql}", $inparams, '', 'id, shortname');
         $names = [];
         foreach ($records as $cid => $rec) {
