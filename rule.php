@@ -134,18 +134,28 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
                     }
                 }
 
-                $missingcompetencies = [];
+                $compids = [];
                 foreach ($cmcompetencies as $cmcomp) {
-                    $competencyid = $this->extract_competency_id($cmcomp);
+                    $cid = $this->extract_competency_id($cmcomp);
+                    if ($cid) {
+                        $compids[] = $cid;
+                    }
+                }
+                $compids = array_unique($compids);
 
-                    $rate = $this->get_user_competency_rate($userid, $competencyid);
+                $rates = $this->get_user_competencies_rates($userid, $compids);
+                $names = $this->get_competency_names($compids);
+
+                $missingcompetencies = [];
+                foreach ($compids as $cid) {
+                    $rate = isset($rates[$cid]) ? $rates[$cid] : null;
                     $isproficient = ($rate !== null && $rate >= $threshold);
 
                     if (!$isproficient) {
-                        $competency = new \core_competency\competency($competencyid);
+                        $shortname = isset($names[$cid]) ? $names[$cid] : ('ID ' . $cid);
                         $rateval = ($rate !== null) ? sprintf('%.1f', $rate) : '0.0';
                         $missingcompetencies[] = get_string('competencyprogress', 'quizaccess_failgrade_ext', [
-                            'name' => $competency->get('shortname'),
+                            'name' => $shortname,
                             'rate' => $rateval,
                             'threshold' => $threshold,
                         ]);
@@ -168,11 +178,9 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
                     $tablehtml .= '</thead>';
                     $tablehtml .= '<tbody>';
 
-                    foreach ($cmcompetencies as $cmcomp) {
-                        $competencyid = $this->extract_competency_id($cmcomp);
-
-                        $rate = $this->get_user_competency_rate($userid, $competencyid);
-                        $competency = new \core_competency\competency($competencyid);
+                    foreach ($compids as $cid) {
+                        $rate = isset($rates[$cid]) ? $rates[$cid] : null;
+                        $shortname = isset($names[$cid]) ? $names[$cid] : ('ID ' . $cid);
 
                         $rateint = ($rate !== null) ? (int) $rate : 0;
                         $thresholdval = $threshold . '%';
@@ -200,7 +208,7 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
                         }
 
                         $tablehtml .= '<tr>';
-                        $tablehtml .= '<td><strong>' . s($competency->get('shortname')) . '</strong></td>';
+                        $tablehtml .= '<td><strong>' . s($shortname) . '</strong></td>';
                         $tablehtml .= '<td><span class="badge badge-secondary bg-secondary text-white p-2">' .
                             $thresholdval . '</span></td>';
                         $tablehtml .= '<td>' . $progressbar . '</td>';
@@ -291,27 +299,44 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
     }
 
     /**
-     * Get the user's competency rate.
+     * Get user competency rates in bulk for an array of competency IDs.
      *
      * @param int $userid The user ID.
-     * @param int $competencyid The competency ID.
-     * @return float|null The competency rate, or null if no attempts exist.
+     * @param array $competencyids Array of competency IDs.
+     * @return array Map of competencyid => float|null rate percentage.
      */
-    protected function get_user_competency_rate($userid, $competencyid) {
+    protected function get_user_competencies_rates($userid, array $competencyids) {
         global $DB;
-        $courseid = $this->quizobj->get_courseid();
-
-        // 1. Try to use the overall course competency report calculator if available.
-        if (class_exists('\local_comp_report_ext\competency_calculator')) {
-            $calculator = new \local_comp_report_ext\competency_calculator($courseid);
-            $scores = $calculator->get_student_scores($userid, $competencyid);
-            if (isset($scores[$competencyid])) {
-                return (float)$scores[$competencyid]['percent'];
-            }
+        $rates = [];
+        if (empty($competencyids)) {
+            return $rates;
         }
 
-        // 2. Fallback: Calculate user competency rate based on attempts for this specific quiz.
-        $sql = "SELECT CAST(SUM(qa.maxfraction) AS DECIMAL(12,1)) AS questions,
+        $courseid = $this->quizobj->get_courseid();
+
+        // 1. Try to use overall course competency report calculator if available.
+        if (class_exists('\local_comp_report_ext\competency_calculator')) {
+            $calculator = new \local_comp_report_ext\competency_calculator($courseid);
+            $scores = $calculator->get_student_scores($userid);
+            foreach ($competencyids as $cid) {
+                if (isset($scores[$cid])) {
+                    $rates[$cid] = (float)$scores[$cid]['percent'];
+                } else {
+                    $rates[$cid] = null;
+                }
+            }
+            return $rates;
+        }
+
+        // 2. Fallback: Bulk query rates based on quiz attempts for these competency IDs.
+        list($insql, $inparams) = $DB->get_in_or_equal($competencyids, SQL_PARAMS_NAMED, 'cid');
+        $params = array_merge([
+            'quizid' => $this->quizobj->get_quizid(),
+            'userid' => $userid,
+        ], $inparams);
+
+        $sql = "SELECT m.competencyid,
+                       CAST(SUM(qa.maxfraction) AS DECIMAL(12,1)) AS questions,
                        CAST(SUM(qas.fraction) AS DECIMAL(12,1)) AS correct
                   FROM {quiz_attempts} quiza
                   JOIN {question_usages} qu ON qu.id = quiza.uniqueid
@@ -324,17 +349,51 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
                   ) qas ON qas.questionattemptid = qa.id
                  WHERE quiza.quiz = :quizid
                    AND quiza.userid = :userid
-                   AND m.competencyid = :competencyid";
+                   AND m.competencyid {$insql}
+              GROUP BY m.competencyid";
 
-        $row = $DB->get_record_sql($sql, [
-            'quizid' => $this->quizobj->get_quizid(),
-            'userid' => $userid,
-            'competencyid' => $competencyid,
-        ]);
-        if ($row && $row->questions > 0) {
-            return ($row->correct / $row->questions) * 100;
+        $records = $DB->get_records_sql($sql, $params);
+        foreach ($competencyids as $cid) {
+            if (isset($records[$cid]) && $records[$cid]->questions > 0) {
+                $rates[$cid] = ($records[$cid]->correct / $records[$cid]->questions) * 100.0;
+            } else {
+                $rates[$cid] = null;
+            }
         }
-        return null;
+
+        return $rates;
+    }
+
+    /**
+     * Get competency shortnames in bulk for an array of competency IDs.
+     *
+     * @param array $competencyids Array of competency IDs.
+     * @return array Map of competencyid => shortname string.
+     */
+    protected function get_competency_names(array $competencyids) {
+        global $DB;
+        if (empty($competencyids)) {
+            return [];
+        }
+        list($insql, $inparams) = $DB->get_in_or_equal($competencyids, SQL_PARAMS_NAMED, 'cid');
+        $records = $DB->get_records_select('competency', "id {$insql}", $inparams, '', 'id, shortname');
+        $names = [];
+        foreach ($records as $cid => $rec) {
+            $names[$cid] = $rec->shortname;
+        }
+        return $names;
+    }
+
+    /**
+     * Get the user's competency rate for a single competency ID.
+     *
+     * @param int $userid The user ID.
+     * @param int $competencyid The competency ID.
+     * @return float|null The competency rate, or null if no attempts exist.
+     */
+    protected function get_user_competency_rate($userid, $competencyid) {
+        $rates = $this->get_user_competencies_rates($userid, [$competencyid]);
+        return isset($rates[$competencyid]) ? $rates[$competencyid] : null;
     }
 
     /**
@@ -389,7 +448,15 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
         if (($mode == 2 || $mode == 3) && \core_competency\api::is_enabled()) {
             $cmid = $this->quizobj->get_cmid();
             $cmcompetencies = \core_competency\api::list_course_module_competencies($cmid);
-            $totalcompetencies = count($cmcompetencies);
+            $compids = [];
+            foreach ($cmcompetencies as $cmcomp) {
+                $cid = $this->extract_competency_id($cmcomp);
+                if ($cid) {
+                    $compids[] = $cid;
+                }
+            }
+            $compids = array_unique($compids);
+            $totalcompetencies = count($compids);
 
             if ($totalcompetencies > 0) {
                 $threshold = isset($this->quiz->competencythreshold) ? (int) $this->quiz->competencythreshold : 0;
@@ -400,11 +467,10 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
                     }
                 }
 
+                $rates = $this->get_user_competencies_rates($userid, $compids);
                 $achievedcompetencies = 0;
-                foreach ($cmcompetencies as $cmcomp) {
-                    $competencyid = $this->extract_competency_id($cmcomp);
-
-                    $rate = $this->get_user_competency_rate($userid, $competencyid);
+                foreach ($compids as $cid) {
+                    $rate = isset($rates[$cid]) ? $rates[$cid] : null;
                     if ($rate !== null && $rate >= $threshold) {
                         $achievedcompetencies++;
                     }
