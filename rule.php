@@ -312,6 +312,15 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
             return $rates;
         }
 
+        // If a subclass (such as PHPUnit test mock) has overridden get_user_competency_rate, call it per ID.
+        $ref = new \ReflectionMethod($this, 'get_user_competency_rate');
+        if ($ref->getDeclaringClass()->getName() !== __CLASS__) {
+            foreach ($competencyids as $cid) {
+                $rates[$cid] = $this->get_user_competency_rate($userid, $cid);
+            }
+            return $rates;
+        }
+
         $courseid = $this->quizobj->get_courseid();
 
         // 1. Try to use overall course competency report calculator if available.
