@@ -27,12 +27,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026072702;
+$plugin->version   = 2026082400;
 $plugin->requires  = 2022041900; // Moodle 4.0 minimum.
 $plugin->supported = [400, 500];  // Moodle 4.0 – 5.0.
 $plugin->component = 'quizaccess_failgrade_ext';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v2.4.2';
+$plugin->release   = 'v2.4.3';
 
 $plugin->dependencies = [
     'qbank_comp_ext' => 2026070500,

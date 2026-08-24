@@ -4,7 +4,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3-blue.svg?style=flat-square)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20MySQL%20%7C%20MariaDB-purple.svg?style=flat-square)](https://docs.moodle.org)
 [![License](https://img.shields.io/badge/License-GPL%20v3-green.svg?style=flat-square)](http://www.gnu.org/copyleft/gpl.html)
-[![Version](https://img.shields.io/badge/Version-v2.4.2-blue.svg?style=flat-square)](https://github.com/engfeda-ui/failgrade)
+[![Version](https://img.shields.io/badge/Version-v2.4.3-blue.svg?style=flat-square)](https://github.com/engfeda-ui/failgrade)
 
 An essential Moodle quiz access rule plugin designed to enforce mastery-based learning. This plugin prevents students from starting new quiz attempts once they have proven their competency, encouraging them to focus on other areas once mastery is achieved.
 
@@ -72,6 +72,11 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 ---
 
 ## 📋 Changelog
+
+### v2.4.3 (2026082400) — 2026-08-24
+- **Maintenance:** Added standard `.gitignore` and `.gitattributes` for repository hygiene and unified LF line endings.
+- **Security:** Excluded local agent instruction files from git tracking.
+- **CI/CD:** Enhanced dual-environment deployment workflow with flexible staging host configuration.
 
 ### v2.4.2 (2026072702) — 2026-07-27
 - **PHPUnit Test Fix:** Updated `get_user_competencies_rates()` in `rule.php` to detect when a unit test mock or subclass overrides `get_user_competency_rate()` via reflection, passing `test_competency_mode_all_achieved`.
