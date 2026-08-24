@@ -4,7 +4,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3-blue.svg?style=flat-square)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20MySQL%20%7C%20MariaDB-purple.svg?style=flat-square)](https://docs.moodle.org)
 [![License](https://img.shields.io/badge/License-GPL%20v3-green.svg?style=flat-square)](http://www.gnu.org/copyleft/gpl.html)
-[![Version](https://img.shields.io/badge/Version-v2.4.4-blue.svg?style=flat-square)](https://github.com/engfeda-ui/failgrade)
+[![Version](https://img.shields.io/badge/Version-v2.4.5-blue.svg?style=flat-square)](https://github.com/engfeda-ui/failgrade)
 
 An essential Moodle quiz access rule plugin designed to enforce mastery-based learning. This plugin prevents students from starting new quiz attempts once they have proven their competency, encouraging them to focus on other areas once mastery is achieved.
 
@@ -22,6 +22,7 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 - **Moodle Event Logging:** Fires a `attempt_blocked_by_failgrade` event when a student is blocked, providing a full audit trail in Moodle's log store.
 - **Privacy Subsystem (GDPR):** Full compliance with Moodle's privacy API.
 - **Backup & Restore:** Integrates with Moodle's core course backup/restore pipeline.
+- **Localization Support:** English and Arabic (`ar`) language packs included.
 - **PHPUnit Test Coverage:** Standardised tests for attempt locking logic.
 
 ---
@@ -45,6 +46,7 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
    ```
    moodle/mod/quiz/accessrule/failgrade_ext
    ```
+   > The directory name inside `mod/quiz/accessrule/` must be exactly `failgrade_ext`.
 4. **Run Moodle Upgrade:** Log in as Administrator and navigate to **Site administration > Notifications**.
 5. **Alternative Install:** Zip the directory and upload via **Site administration > Plugins > Install plugins**.
 
@@ -72,6 +74,9 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 ---
 
 ## 📋 Changelog
+
+### v2.4.5 (2026082402) — 2026-08-24
+- **Documentation:** Standardized installation instructions for `failgrade_ext` directory placement and documented Arabic language pack support.
 
 ### v2.4.4 (2026082401) — 2026-08-24
 - **CI/CD:** Streamlined deployment pipeline directly to Production environment and removed deprecated staging branch/configuration.
