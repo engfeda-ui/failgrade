@@ -560,17 +560,18 @@ class rule_test extends advanced_testcase {
             public $mockrates = [];
 
             /**
-             * Override get_user_competency_rate to return mock rates instead of running DB queries.
+             * Override get_user_competencies_rates to return mock rates instead of running DB queries.
              *
              * @param int $userid The user ID.
-             * @param int $competencyid The competency ID.
-             * @return float|null The competency rate, or null if none.
+             * @param array $competencyids The competency IDs.
+             * @return array Map of competencyid => rate (or null if none).
              */
-            protected function get_user_competency_rate($userid, $competencyid) {
-                if (isset($this->mockrates[$competencyid])) {
-                    return $this->mockrates[$competencyid];
+            protected function get_user_competencies_rates($userid, array $competencyids) {
+                $rates = [];
+                foreach ($competencyids as $cid) {
+                    $rates[$cid] = $this->mockrates[$cid] ?? null;
                 }
-                return null;
+                return $rates;
             }
         };
         $rule->mockrates = [
@@ -647,17 +648,18 @@ class rule_test extends advanced_testcase {
             public $mockrates = [];
 
             /**
-             * Override get_user_competency_rate to return mock rates instead of running DB queries.
+             * Override get_user_competencies_rates to return mock rates instead of running DB queries.
              *
              * @param int $userid The user ID.
-             * @param int $competencyid The competency ID.
-             * @return float|null The competency rate, or null if none.
+             * @param array $competencyids The competency IDs.
+             * @return array Map of competencyid => rate (or null if none).
              */
-            protected function get_user_competency_rate($userid, $competencyid) {
-                if (isset($this->mockrates[$competencyid])) {
-                    return $this->mockrates[$competencyid];
+            protected function get_user_competencies_rates($userid, array $competencyids) {
+                $rates = [];
+                foreach ($competencyids as $cid) {
+                    $rates[$cid] = $this->mockrates[$cid] ?? null;
                 }
-                return null;
+                return $rates;
             }
         };
         $rule->mockrates = [

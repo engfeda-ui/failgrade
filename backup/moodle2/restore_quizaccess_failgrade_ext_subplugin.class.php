@@ -69,6 +69,17 @@ class restore_quizaccess_failgrade_ext_subplugin extends restore_mod_quiz_access
             $data->competencythreshold = 0;
         }
 
-        $DB->insert_record('quizaccess_failgrade_ext', $data);
+        // Upsert: the table has a UNIQUE key on quizid, so a plain INSERT breaks
+        // when restoring over a quiz that already has settings (e.g. overwrite import).
+        $existing = $DB->get_record('quizaccess_failgrade_ext', ['quizid' => $data->quizid], 'id');
+        if ($existing) {
+            $data->id = $existing->id;
+            $DB->update_record('quizaccess_failgrade_ext', $data);
+        } else {
+            if (isset($data->id)) {
+                unset($data->id); // Never reuse the source site's record id.
+            }
+            $DB->insert_record('quizaccess_failgrade_ext', $data);
+        }
     }
 }

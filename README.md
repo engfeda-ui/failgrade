@@ -4,7 +4,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3-blue.svg?style=flat-square)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20MySQL%20%7C%20MariaDB-purple.svg?style=flat-square)](https://docs.moodle.org)
 [![License](https://img.shields.io/badge/License-GPL%20v3-green.svg?style=flat-square)](http://www.gnu.org/copyleft/gpl.html)
-[![Version](https://img.shields.io/badge/Version-v2.4.5-blue.svg?style=flat-square)](https://github.com/engfeda-ui/failgrade)
+[![Version](https://img.shields.io/badge/Version-v2.4.6-blue.svg?style=flat-square)](https://github.com/engfeda-ui/failgrade)
 
 An essential Moodle quiz access rule plugin designed to enforce mastery-based learning. This plugin prevents students from starting new quiz attempts once they have proven their competency, encouraging them to focus on other areas once mastery is achieved.
 
@@ -74,6 +74,12 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 ---
 
 ## 📋 Changelog
+
+### v2.4.6 (2026082600) — 2026-08-26
+- **Fix (Restore):** Restore subplugin now upserts settings instead of blind-inserting — restoring a backup over a quiz that already has failgrade settings no longer violates the UNIQUE `quizid` key and fails.
+- **Refactor:** Removed the `ReflectionMethod` test-detection hook from production code (`get_user_competencies_rates()`); PHPUnit mocks now override the bulk method directly, eliminating test-induced design damage and the mutual-recursion pattern.
+- **Performance:** Scoped the `{question_attempt_steps}` MAX(fraction) aggregation in the fallback rate query to this user's finished attempts on this quiz instead of scanning the entire steps table.
+- **Accuracy:** Removed misleading `CAST(... AS DECIMAL(12,1))` truncations from the fallback rate query — sums were being rounded to one decimal before division, skewing competency percentages.
 
 ### v2.4.5 (2026082402) — 2026-08-24
 - **Documentation:** Standardized installation instructions for `failgrade_ext` directory placement and documented Arabic language pack support.

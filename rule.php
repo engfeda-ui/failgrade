@@ -312,15 +312,6 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
             return $rates;
         }
 
-        // If a subclass (such as PHPUnit test mock) has overridden get_user_competency_rate, call it per ID.
-        $ref = new \ReflectionMethod($this, 'get_user_competency_rate');
-        if ($ref->getDeclaringClass()->getName() !== __CLASS__) {
-            foreach ($competencyids as $cid) {
-                $rates[$cid] = $this->get_user_competency_rate($userid, $cid);
-            }
-            return $rates;
-        }
-
         $courseid = $this->quizobj->get_courseid();
 
         // 1. Try to use overall course competency report calculator if available.
@@ -344,22 +335,36 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
             'userid' => $userid,
         ], $inparams);
 
+        // The MAX(fraction) aggregation is scoped to this user's finished attempts
+        // on this quiz, instead of scanning the whole steps table.
         $sql = "SELECT m.competencyid,
-                       CAST(SUM(qa.maxfraction) AS DECIMAL(12,1)) AS questions,
-                       CAST(SUM(qas.fraction) AS DECIMAL(12,1)) AS correct
+                       SUM(qa.maxfraction) AS questions,
+                       SUM(qas.fraction)   AS correct
                   FROM {quiz_attempts} quiza
                   JOIN {question_usages} qu ON qu.id = quiza.uniqueid
                   JOIN {question_attempts} qa ON qa.questionusageid = qu.id
                   JOIN {qbank_comp_ext_qmap} m ON m.questionid = qa.questionid
                   JOIN (
-                       SELECT MAX(fraction) AS fraction, questionattemptid
-                         FROM {question_attempt_steps}
-                     GROUP BY questionattemptid
+                       SELECT s.questionattemptid, MAX(s.fraction) AS fraction
+                         FROM {question_attempt_steps} s
+                         JOIN {question_attempts} qa2 ON qa2.id = s.questionattemptid
+                        WHERE qa2.questionusageid IN (
+                            SELECT qu2.id
+                              FROM {quiz_attempts} qa3
+                              JOIN {question_usages} qu2 ON qu2.id = qa3.uniqueid
+                             WHERE qa3.quiz = :quizid2
+                               AND qa3.userid = :userid2
+                               AND qa3.state = 'finished'
+                        )
+                     GROUP BY s.questionattemptid
                   ) qas ON qas.questionattemptid = qa.id
                  WHERE quiza.quiz = :quizid
                    AND quiza.userid = :userid
                    AND m.competencyid {$insql}
               GROUP BY m.competencyid";
+
+        $params['quizid2'] = $this->quizobj->get_quizid();
+        $params['userid2'] = $userid;
 
         $records = $DB->get_records_sql($sql, $params);
         foreach ($competencyids as $cid) {
