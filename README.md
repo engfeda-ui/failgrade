@@ -5,7 +5,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3-blue.svg?style=flat-square)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20MySQL%20%7C%20MariaDB-purple.svg?style=flat-square)](https://docs.moodle.org)
 [![License](https://img.shields.io/badge/License-GPL%20v3-green.svg?style=flat-square)](http://www.gnu.org/copyleft/gpl.html)
-[![Version](https://img.shields.io/badge/Version-v2.4.6-blue.svg?style=flat-square)](https://github.com/engfeda-ui/failgrade)
+[![Version](https://img.shields.io/badge/Version-v2.4.7-blue.svg?style=flat-square)](https://github.com/engfeda-ui/failgrade)
 
 An essential Moodle quiz access rule plugin designed to enforce mastery-based learning. This plugin prevents students from starting new quiz attempts once they have proven their competency, encouraging them to focus on other areas once mastery is achieved.
 
@@ -75,6 +75,9 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 ---
 
 ## 📋 Changelog
+
+### v2.4.7 (2026090800) — 2026-09-08
+- **PHPDoc Compliance:** Replaced inline `{@link ...}` tags referencing functions and methods with standard `{@see ...}` tags in `rule.php` (`mod_quiz_mod_form::definition()`, `quiz_after_add_or_update()`, `quiz_delete_instance()`, `quiz_access_manager::load_settings()`) to satisfy Moodle PHPDoc Checker rules.
 
 ### v2.4.6 (2026082600) — 2026-08-26
 - **Fix (Restore):** Restore subplugin now upserts settings instead of blind-inserting — restoring a backup over a quiz that already has failgrade settings no longer violates the UNIQUE `quizid` key and fails.
