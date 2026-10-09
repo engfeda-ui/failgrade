@@ -320,8 +320,9 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
         $courseid = $this->quizobj->get_courseid();
 
         // 1. Try to use overall course competency report calculator if available.
-        if (class_exists('\local_comp_report_ext\competency_calculator')
-            && method_exists('\local_comp_report_ext\competency_calculator', 'get_student_scores')) {
+        $hascalc = class_exists('\local_comp_report_ext\competency_calculator');
+        $hasmethod = method_exists('\local_comp_report_ext\competency_calculator', 'get_student_scores');
+        if ($hascalc && $hasmethod) {
             $calculator = new \local_comp_report_ext\competency_calculator($courseid);
             $scores = $calculator->get_student_scores($userid);
             foreach ($competencyids as $cid) {
