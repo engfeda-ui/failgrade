@@ -17,10 +17,10 @@
 /**
  * Privacy Subsystem implementation for quizaccess_failgrade_ext.
  *
- * @package quizaccess_failgrade_ext
+ * @package    quizaccess_failgrade_ext
  * @copyright  2026 Mahmoud Salem
- * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  based on work by 2020 Alexandre Paes Rigão <rigao.com.br>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace quizaccess_failgrade_ext\privacy;
@@ -29,7 +29,7 @@ namespace quizaccess_failgrade_ext\privacy;
  * Privacy Subsystem implementation for quizaccess_failgrade_ext.
  *
  * @copyright  2026 Mahmoud Salem
- * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
+ * @copyright  based on work by 2020 Alexandre Paes Rigão <rigao.com.br>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements \core_privacy\local\metadata\null_provider {

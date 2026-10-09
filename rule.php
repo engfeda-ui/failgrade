@@ -19,7 +19,7 @@
  *
  * @package    quizaccess_failgrade_ext
  * @copyright  2026 Mahmoud Salem
- * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
+ * @copyright  based on work by 2020 Alexandre Paes Rigão <rigao.com.br>
  * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2026 quizaccess_failgrade_ext contributors
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -49,7 +49,7 @@ if (class_exists('\mod_quiz\local\access_rule_base')) {
  *
  * @package    quizaccess_failgrade_ext
  * @copyright  2026 Mahmoud Salem
- * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
+ * @copyright  based on work by 2020 Alexandre Paes Rigão <rigao.com.br>
  * @copyright  2026 Mahmoud Salem
  * @copyright  based on work by 2026 quizaccess_failgrade_ext contributors
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -59,7 +59,7 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
     /** @var array Cache for is_finished calculations */
     protected $isfinishedcache = [];
 
-    /** @var array Cache for description calculations */
+    /** @var array|null Cache for description calculations */
     protected $descriptioncache = null;
 
     /**
@@ -127,6 +127,7 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
             $cmcompetencies = \core_competency\api::list_course_module_competencies($cmid);
             if (count($cmcompetencies) > 0) {
                 $threshold = isset($this->quiz->competencythreshold) ? (int) $this->quiz->competencythreshold : 0;
+                $threshold = max(0, min(100, $threshold));
                 if ($threshold <= 0) {
                     $threshold = (int) get_config('local_comp_report_ext', 'success_threshold');
                     if ($threshold <= 0) {
@@ -155,16 +156,18 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
                         $shortname = isset($names[$cid]) ? $names[$cid] : ('ID ' . $cid);
                         $rateval = ($rate !== null) ? sprintf('%.1f', $rate) : '0.0';
                         $missingcompetencies[] = get_string('competencyprogress', 'quizaccess_failgrade_ext', [
-                            'name' => $shortname,
+                            'name' => s($shortname),
                             'rate' => $rateval,
                             'threshold' => $threshold,
                         ]);
                     }
                 }
 
-                // Build the Competency Progress Table.
+                // Build the Competency Progress Table (enrolled attempters only).
                 $tablehtml = '';
-                if (has_capability('mod/quiz:attempt', $this->quizobj->get_context())) {
+                $canseetable = has_capability('mod/quiz:attempt', $this->quizobj->get_context())
+                    && is_enrolled($this->quizobj->get_context(), $userid, '', true);
+                if ($canseetable) {
                     $tablehtml .= '<div class="competency-results-table mt-4">';
                     $tablehtml .= '<h3>' . get_string('competencytable_heading', 'quizaccess_failgrade_ext') . '</h3>';
                     $tablehtml .= '<table class="table table-striped table-bordered table-hover mt-2 align-middle">';
@@ -185,13 +188,15 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
                         $rateint = ($rate !== null) ? (int) $rate : 0;
                         $thresholdval = $threshold . '%';
 
+                        // Mid band scales with the threshold (defaults to 40 at threshold 60).
+                        $midband = (int)round($threshold * 0.66);
                         if ($rateint >= $threshold) {
                             $bgclass = 'bg-success';
                             $statusbadge = '<span class="badge badge-success bg-success text-white p-2">' .
                                 '<i class="fa fa-check-circle mr-1"></i> ' .
                                 get_string('competencytable_passed', 'quizaccess_failgrade_ext') . '</span>';
                         } else {
-                            $bgclass = ($rateint >= 40) ? 'bg-warning' : 'bg-danger';
+                            $bgclass = ($rateint >= $midband) ? 'bg-warning' : 'bg-danger';
                             $statusbadge = '<span class="badge badge-danger bg-danger text-white p-2">' .
                                 '<i class="fa fa-times-circle mr-1"></i> ' .
                                 get_string('competencytable_failed', 'quizaccess_failgrade_ext') . '</span>';
@@ -315,7 +320,8 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
         $courseid = $this->quizobj->get_courseid();
 
         // 1. Try to use overall course competency report calculator if available.
-        if (class_exists('\local_comp_report_ext\competency_calculator')) {
+        if (class_exists('\local_comp_report_ext\competency_calculator')
+            && method_exists('\local_comp_report_ext\competency_calculator', 'get_student_scores')) {
             $calculator = new \local_comp_report_ext\competency_calculator($courseid);
             $scores = $calculator->get_student_scores($userid);
             foreach ($competencyids as $cid) {
@@ -333,17 +339,19 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
         $params = array_merge([
             'quizid' => $this->quizobj->get_quizid(),
             'userid' => $userid,
+            'mapcourseid' => $this->quizobj->get_courseid(),
         ], $inparams);
 
         // The MAX(fraction) aggregation is scoped to this user's finished attempts
         // on this quiz, instead of scanning the whole steps table.
+        // The qmap join is course-scoped so shared questions keep each course's own mapping.
         $sql = "SELECT m.competencyid,
                        SUM(qa.maxfraction) AS questions,
                        SUM(qas.fraction)   AS correct
                   FROM {quiz_attempts} quiza
                   JOIN {question_usages} qu ON qu.id = quiza.uniqueid
                   JOIN {question_attempts} qa ON qa.questionusageid = qu.id
-                  JOIN {qbank_comp_ext_qmap} m ON m.questionid = qa.questionid
+                  JOIN {qbank_comp_ext_qmap} m ON m.questionid = qa.questionid AND m.courseid = :mapcourseid
                   JOIN (
                        SELECT s.questionattemptid, MAX(s.fraction) AS fraction
                          FROM {question_attempt_steps} s
@@ -450,7 +458,7 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
 
             if ($item) {
                 $grades = \grade_grade::fetch_users_grades($item, [$userid], false);
-                $grade = $grades[$userid];
+                $grade = $grades[$userid] ?? null;
 
                 if (!empty($grade)) {
                     $passedgrade = (bool) $grade->is_passed($item);
@@ -474,6 +482,7 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
 
             if ($totalcompetencies > 0) {
                 $threshold = isset($this->quiz->competencythreshold) ? (int) $this->quiz->competencythreshold : 0;
+                $threshold = max(0, min(100, $threshold));
                 if ($threshold <= 0) {
                     $threshold = (int) get_config('local_comp_report_ext', 'success_threshold');
                     if ($threshold <= 0) {
@@ -560,7 +569,9 @@ class quizaccess_failgrade_ext extends quiz_access_rule_base
         if (empty($quiz->failgradeenabled) || $quiz->failgradeenabled == 0) {
             $DB->delete_records('quizaccess_failgrade_ext', ['quizid' => $quiz->id]);
         } else {
+            // Clamp the threshold to 0-100: higher values would block every student forever.
             $competencythreshold = isset($quiz->competencythreshold) ? (int) $quiz->competencythreshold : 0;
+            $competencythreshold = max(0, min(100, $competencythreshold));
             if (!$DB->record_exists('quizaccess_failgrade_ext', ['quizid' => $quiz->id])) {
                 $record = new \stdClass();
                 $record->quizid = $quiz->id;

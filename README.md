@@ -5,7 +5,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3-blue.svg?style=flat-square)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20MySQL%20%7C%20MariaDB-purple.svg?style=flat-square)](https://docs.moodle.org)
 [![License](https://img.shields.io/badge/License-GPL%20v3-green.svg?style=flat-square)](http://www.gnu.org/copyleft/gpl.html)
-[![Version](https://img.shields.io/badge/Version-v2.4.7-blue.svg?style=flat-square)](https://github.com/engfeda-ui/failgrade)
+[![Version](https://img.shields.io/badge/Version-v2.4.9-blue.svg?style=flat-square)](https://github.com/engfeda-ui/failgrade)
 
 An essential Moodle quiz access rule plugin designed to enforce mastery-based learning. This plugin prevents students from starting new quiz attempts once they have proven their competency, encouraging them to focus on other areas once mastery is achieved.
 
@@ -35,7 +35,7 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 | **Moodle Framework** | Moodle 4.0 to 5.0+ |
 | **PHP Runtime** | PHP 8.1, PHP 8.2, PHP 8.3 |
 | **Database System** | PostgreSQL 13+, MySQL 8.0+, or MariaDB 10.5+ |
-| **Required Plugin** | [**`qbank_comp_ext`**](https://github.com/engfeda-ui/competency) ≥ 2026052500 (for competency mode) |
+| **Required Plugin** | [**`qbank_comp_ext`**](https://github.com/engfeda-ui/competency) ≥ 2026070500 (for competency mode) |
 
 ---
 
@@ -75,6 +75,20 @@ It supports dual-mode locking: traditional **Grade-Based** locking and a highly 
 ---
 
 ## 📋 Changelog
+
+### v2.4.9 (2026100901) — 2026-10-09
+- **Final Review Fixes:**
+  - **Threshold Clamp:** `competencythreshold` forced to 0-100 on save and on read, so a typo can never block every student permanently.
+  - **Course-Scoped Fallback:** The competency fallback query now joins qmap with `m.courseid`, so shared questions keep each course's own mapping.
+  - **Defensive Calculator Call:** `method_exists` guard before `get_student_scores()` against version drift.
+  - **Enrolled-Only Table:** The competency progress table renders only for enrolled attempters.
+  - **Dynamic Mid Band:** Warning band derived from the threshold (66%) instead of fixed 40.
+
+### v2.4.8 (2026100900) — 2026-10-09
+- **Upgrade & Display Fixes (Audit):**
+  - **Savepoint Corrected:** `db/upgrade.php` now uses `'failgrade_ext'`, matching the frankenstyle component and install folder.
+  - **XSS Fixed:** Competency shortnames escaped with `s()` in the missing-competencies alert.
+  - **Docs & Robustness:** Corrected `lang/en` package header and mojibake copyright; `?? null` guard on grade fetch; install.xml documents mode 3; README dependency synced to 2026070500.
 
 ### v2.4.7 (2026090800) — 2026-09-08
 - **PHPDoc Compliance:** Replaced inline `{@link ...}` tags referencing functions and methods with standard `{@see ...}` tags in `rule.php` (`mod_quiz_mod_form::definition()`, `quiz_after_add_or_update()`, `quiz_delete_instance()`, `quiz_access_manager::load_settings()`) to satisfy Moodle PHPDoc Checker rules.

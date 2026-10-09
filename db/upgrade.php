@@ -26,8 +26,8 @@
 /**
  * Upgrade the plugin from an old version.
  *
- * @param int $oldversion the version we are upgrading from.
- * @return bool always true.
+ * @param int $oldversion The version we are upgrading from.
+ * @return bool Always true.
  */
 function xmldb_quizaccess_failgrade_ext_upgrade($oldversion) {
     global $DB;
@@ -39,7 +39,7 @@ function xmldb_quizaccess_failgrade_ext_upgrade($oldversion) {
         // As of v2.0.0 it stores 0, 1, or 2 to support three modes: 0 (disabled), 1 (grade-based), and 2 (competency-based).
         // The existing INT(2) column already fits values 0-2 without a schema change, so no DDL alteration is needed.
         // We just bump the savepoint.
-        upgrade_plugin_savepoint(true, 2026051500, 'quizaccess', 'failgrade');
+        upgrade_plugin_savepoint(true, 2026051500, 'quizaccess', 'failgrade_ext');
     }
 
     if ($oldversion < 2026051901) {
@@ -62,7 +62,7 @@ function xmldb_quizaccess_failgrade_ext_upgrade($oldversion) {
         }
 
         // Savepoint.
-        upgrade_plugin_savepoint(true, 2026051901, 'quizaccess', 'failgrade');
+        upgrade_plugin_savepoint(true, 2026051901, 'quizaccess', 'failgrade_ext');
     }
 
     return true;

@@ -17,11 +17,10 @@
 /**
  * Strings for the quizaccess_failgrade_ext plugin.
  *
- * @package quizaccess
- * @subpackage failgrade
+ * @package    quizaccess_failgrade_ext
  * @copyright  2026 Mahmoud Salem
- * @copyright  based on work by 2020 Alexandre Paes RigÃ£o <rigao.com.br>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  based on work by 2020 Alexandre Paes Rigão <rigao.com.br>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
